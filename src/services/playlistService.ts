@@ -8,20 +8,22 @@ const log = createLogger("playlistService");
 
 const DEFAULT_CHECK_INTERVAL_HOURS = 6;
 const DEFAULT_CHANNEL_NUMBER_START = 1;
+const DEFAULT_AUTO_ASSIGN_NUMBERS = 1;
 
 export function createPlaylist(
   name: string,
   channelIds: string[],
   checkIntervalHours: number = DEFAULT_CHECK_INTERVAL_HOURS,
-  channelNumberStart: number = DEFAULT_CHANNEL_NUMBER_START
+  channelNumberStart: number = DEFAULT_CHANNEL_NUMBER_START,
+  autoAssignNumbers: number = DEFAULT_AUTO_ASSIGN_NUMBERS
 ): Playlist {
   const id = uuidv4();
   const now = new Date().toISOString();
 
   const tx = db.transaction(() => {
     db.prepare(
-      "INSERT INTO playlists (id, name, createdAt, updatedAt, checkIntervalHours, channelNumberStart) VALUES (?, ?, ?, ?, ?, ?)"
-    ).run(id, name, now, now, checkIntervalHours, channelNumberStart);
+      "INSERT INTO playlists (id, name, createdAt, updatedAt, checkIntervalHours, channelNumberStart, autoAssignNumbers) VALUES (?, ?, ?, ?, ?, ?, ?)"
+    ).run(id, name, now, now, checkIntervalHours, channelNumberStart, autoAssignNumbers);
     insertChannelLinks(id, channelIds);
   });
   tx();
@@ -31,6 +33,7 @@ export function createPlaylist(
     channelCount: channelIds.length,
     checkIntervalHours,
     channelNumberStart,
+    autoAssignNumbers,
   });
   return {
     id,
@@ -40,6 +43,7 @@ export function createPlaylist(
     checkIntervalHours,
     lastTestedAt: null,
     channelNumberStart,
+    autoAssignNumbers,
     channelCount: channelIds.length,
   };
 }
@@ -48,7 +52,7 @@ export function listPlaylists(): Playlist[] {
   return db
     .prepare(
       `SELECT p.id, p.name, p.createdAt, p.updatedAt, p.checkIntervalHours, p.lastTestedAt,
-              p.channelNumberStart, COUNT(pc.channelId) AS channelCount
+              p.channelNumberStart, p.autoAssignNumbers, COUNT(pc.channelId) AS channelCount
        FROM playlists p
        LEFT JOIN playlist_channels pc ON pc.playlistId = p.id
        GROUP BY p.id
@@ -60,7 +64,7 @@ export function listPlaylists(): Playlist[] {
 export function getPlaylist(id: string): PlaylistWithChannels | null {
   const playlist = db
     .prepare(
-      "SELECT id, name, createdAt, updatedAt, checkIntervalHours, lastTestedAt, channelNumberStart FROM playlists WHERE id = ?"
+      "SELECT id, name, createdAt, updatedAt, checkIntervalHours, lastTestedAt, channelNumberStart, autoAssignNumbers FROM playlists WHERE id = ?"
     )
     .get(id) as Playlist | undefined;
 
@@ -85,6 +89,7 @@ export function updatePlaylist(
     channelIds?: string[];
     checkIntervalHours?: number;
     channelNumberStart?: number;
+    autoAssignNumbers?: number;
   }
 ): PlaylistWithChannels | null {
   const existing = db.prepare("SELECT id FROM playlists WHERE id = ?").get(id);
@@ -115,6 +120,10 @@ export function updatePlaylist(
       fields.push("channelNumberStart = ?");
       params.push(updates.channelNumberStart);
     }
+    if (updates.autoAssignNumbers !== undefined) {
+      fields.push("autoAssignNumbers = ?");
+      params.push(updates.autoAssignNumbers);
+    }
 
     params.push(id);
     db.prepare(`UPDATE playlists SET ${fields.join(", ")} WHERE id = ?`).run(...params);
@@ -131,6 +140,7 @@ export function updatePlaylist(
     channelCount: updates.channelIds?.length,
     checkIntervalHours: updates.checkIntervalHours,
     channelNumberStart: updates.channelNumberStart,
+    autoAssignNumbers: updates.autoAssignNumbers,
   });
 
   return getPlaylist(id);

@@ -18,6 +18,7 @@ export interface Playlist {
   checkIntervalHours: number;
   lastTestedAt: string | null;
   channelNumberStart: number;
+  autoAssignNumbers: number; // 0/1
   channelCount: number;
   exceedsChannelsDvrLimit: boolean;
   m3uUrl: string;

@@ -77,6 +77,7 @@ export function updatePlaylist(
     channelIds?: string[];
     checkIntervalHours?: number;
     channelNumberStart?: number;
+    autoAssignNumbers?: boolean;
   }
 ): Promise<PlaylistWithChannels> {
   return request(`/playlists/${id}`, {
@@ -178,6 +179,7 @@ export interface PlaylistExport {
   channelIds: string[];
   checkIntervalHours: number;
   channelNumberStart: number;
+  autoAssignNumbers?: number;
 }
 
 export function exportPlaylist(id: string): Promise<PlaylistExport> {
@@ -202,6 +204,7 @@ export interface BackupPlaylistDefinition {
   channelIds: string[];
   checkIntervalHours: number;
   channelNumberStart: number;
+  autoAssignNumbers?: number;
 }
 
 export interface BackupBundle {

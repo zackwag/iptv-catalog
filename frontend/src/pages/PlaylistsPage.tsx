@@ -109,6 +109,18 @@ export default function PlaylistsPage() {
     }
   }
 
+  async function handleToggleAutoAssign(id: string, value: boolean) {
+    setBusyId(id);
+    try {
+      const updated = await updatePlaylist(id, { autoAssignNumbers: value });
+      setPlaylists((prev) => prev.map((p) => (p.id === id ? { ...p, ...updated } : p)));
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   async function handleTestNow(id: string) {
     setBusyId(id);
     setTestMessages((prev) => ({ ...prev, [id]: "Testing…" }));
@@ -363,36 +375,53 @@ export default function PlaylistsPage() {
                   marginTop: 10,
                 }}
               >
-                <span className="meta">Channel numbers start at</span>
-                <input
-                  type="number"
-                  min={1}
-                  value={numberStartDrafts[p.id] ?? ""}
-                  onChange={(e) =>
-                    setNumberStartDrafts((prev) => ({ ...prev, [p.id]: e.target.value }))
-                  }
-                  style={{
-                    width: 70,
-                    background: "var(--bg)",
-                    border: "1px solid var(--border)",
-                    color: "var(--text)",
-                    borderRadius: 6,
-                    padding: "6px 8px",
-                  }}
-                />
-                <button
-                  className="secondary"
-                  disabled={
-                    busyId === p.id || numberStartDrafts[p.id] === String(p.channelNumberStart)
-                  }
-                  onClick={() => handleSaveNumberStart(p.id)}
-                >
-                  Save
-                </button>
-                <span className="meta" style={{ fontSize: 11 }}>
-                  Change this if multiple playlists are added to Channels DVR so their numbers don't
-                  overlap.
-                </span>
+                <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
+                  <input
+                    type="checkbox"
+                    checked={p.autoAssignNumbers !== 0}
+                    disabled={busyId === p.id}
+                    onChange={(e) => handleToggleAutoAssign(p.id, e.target.checked)}
+                  />
+                  <span className="meta">Assign channel numbers</span>
+                </label>
+                {p.autoAssignNumbers !== 0 && (
+                  <>
+                    <span className="meta">starting at</span>
+                    <input
+                      type="number"
+                      min={1}
+                      value={numberStartDrafts[p.id] ?? ""}
+                      onChange={(e) =>
+                        setNumberStartDrafts((prev) => ({ ...prev, [p.id]: e.target.value }))
+                      }
+                      style={{
+                        width: 70,
+                        background: "var(--bg)",
+                        border: "1px solid var(--border)",
+                        color: "var(--text)",
+                        borderRadius: 6,
+                        padding: "6px 8px",
+                      }}
+                    />
+                    <button
+                      className="secondary"
+                      disabled={
+                        busyId === p.id || numberStartDrafts[p.id] === String(p.channelNumberStart)
+                      }
+                      onClick={() => handleSaveNumberStart(p.id)}
+                    >
+                      Save
+                    </button>
+                    <span className="meta" style={{ fontSize: 11 }}>
+                      Change if multiple playlists are in Channels DVR so numbers don't overlap.
+                    </span>
+                  </>
+                )}
+                {p.autoAssignNumbers === 0 && (
+                  <span className="meta" style={{ fontSize: 11 }}>
+                    Channels DVR will assign numbers automatically.
+                  </span>
+                )}
               </div>
             </div>
           </div>

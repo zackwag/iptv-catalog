@@ -123,6 +123,11 @@ if (!existingColumnNames.has("channelNumberStart")) {
   // their channel numbers colliding.
   db.exec("ALTER TABLE playlists ADD COLUMN channelNumberStart INTEGER NOT NULL DEFAULT 1");
 }
+if (!existingColumnNames.has("autoAssignNumbers")) {
+  // When 0, channel-number tags are omitted from the M3U entirely and
+  // Channels DVR assigns numbers itself.
+  db.exec("ALTER TABLE playlists ADD COLUMN autoAssignNumbers INTEGER NOT NULL DEFAULT 1");
+}
 
 // --- migration: add failure-streak tracking to notifications ---
 const notificationColumns = db.prepare("PRAGMA table_info(notifications)").all() as {

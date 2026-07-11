@@ -44,9 +44,10 @@ function isPositiveNumber(value: unknown): value is number {
 // playlist.m3u/guide.xml file URLs handed to Channels DVR/VLC (those live
 // in publicPlaylistFiles.ts, mounted at the root path instead).
 
-// POST /playlists  { name, channelIds: string[], checkIntervalHours?, channelNumberStart? }
+// POST /playlists  { name, channelIds: string[], checkIntervalHours?, channelNumberStart?, autoAssignNumbers? }
 playlistsRouter.post("/playlists", (req, res) => {
-  const { name, channelIds, checkIntervalHours, channelNumberStart } = req.body ?? {};
+  const { name, channelIds, checkIntervalHours, channelNumberStart, autoAssignNumbers } =
+    req.body ?? {};
 
   if (typeof name !== "string" || name.trim() === "") {
     return res.status(400).json({ error: "name is required" });
@@ -61,7 +62,13 @@ playlistsRouter.post("/playlists", (req, res) => {
     return res.status(400).json({ error: "channelNumberStart must be a positive number" });
   }
 
-  const playlist = createPlaylist(name.trim(), channelIds, checkIntervalHours, channelNumberStart);
+  const playlist = createPlaylist(
+    name.trim(),
+    channelIds,
+    checkIntervalHours,
+    channelNumberStart,
+    autoAssignNumbers !== undefined ? (autoAssignNumbers ? 1 : 0) : undefined
+  );
   regenerateEpgChannelsFile(); // scope the epg sidecar to all channels now referenced
 
   const baseUrl = getBaseUrl(req);
@@ -96,9 +103,10 @@ playlistsRouter.get("/playlists/:id", (req, res) => {
   });
 });
 
-// PATCH /playlists/:id  { name?, channelIds?, checkIntervalHours?, channelNumberStart? }
+// PATCH /playlists/:id  { name?, channelIds?, checkIntervalHours?, channelNumberStart?, autoAssignNumbers? }
 playlistsRouter.patch("/playlists/:id", (req, res) => {
-  const { name, channelIds, checkIntervalHours, channelNumberStart } = req.body ?? {};
+  const { name, channelIds, checkIntervalHours, channelNumberStart, autoAssignNumbers } =
+    req.body ?? {};
 
   if (name !== undefined && (typeof name !== "string" || name.trim() === "")) {
     return res.status(400).json({ error: "name must be a non-empty string" });
@@ -121,6 +129,7 @@ playlistsRouter.patch("/playlists/:id", (req, res) => {
       channelIds,
       checkIntervalHours,
       channelNumberStart,
+      autoAssignNumbers: autoAssignNumbers !== undefined ? (autoAssignNumbers ? 1 : 0) : undefined,
     });
     if (!updated) return res.status(404).json({ error: "playlist not found" });
 
@@ -167,6 +176,7 @@ playlistsRouter.get("/playlists/:id/export", (req, res) => {
     channelIds: playlist.channels.map((c) => c.id),
     checkIntervalHours: playlist.checkIntervalHours,
     channelNumberStart: playlist.channelNumberStart,
+    autoAssignNumbers: playlist.autoAssignNumbers,
   });
 });
 
@@ -174,7 +184,8 @@ playlistsRouter.get("/playlists/:id/export", (req, res) => {
 // definition. Channel ids no longer in the catalog are silently skipped
 // (same tolerance as any other playlist channel lookup).
 playlistsRouter.post("/playlists/import", (req, res) => {
-  const { name, channelIds, checkIntervalHours, channelNumberStart } = req.body ?? {};
+  const { name, channelIds, checkIntervalHours, channelNumberStart, autoAssignNumbers } =
+    req.body ?? {};
 
   if (typeof name !== "string" || name.trim() === "") {
     return res.status(400).json({ error: "name is required" });
@@ -189,7 +200,13 @@ playlistsRouter.post("/playlists/import", (req, res) => {
     return res.status(400).json({ error: "channelNumberStart must be a positive number" });
   }
 
-  const playlist = createPlaylist(name.trim(), channelIds, checkIntervalHours, channelNumberStart);
+  const playlist = createPlaylist(
+    name.trim(),
+    channelIds,
+    checkIntervalHours,
+    channelNumberStart,
+    autoAssignNumbers !== undefined ? (autoAssignNumbers ? 1 : 0) : undefined
+  );
   regenerateEpgChannelsFile();
 
   log.info(`imported playlist "${playlist.name}" from a definition file`, { id: playlist.id });
