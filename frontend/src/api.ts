@@ -258,3 +258,7 @@ export function fetchChannelStreams(id: string): Promise<{ streams: { url: strin
 export function fetchChannelPlaylists(id: string): Promise<{ playlists: { id: string; name: string }[] }> {
   return request(`/channels/${id}/playlists`);
 }
+
+export function fetchPlaylistMembers(): Promise<{ channelIds: string[] }> {
+  return request("/channels/playlistmembers");
+}

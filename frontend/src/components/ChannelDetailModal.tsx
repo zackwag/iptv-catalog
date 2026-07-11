@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { Channel } from "../types";
+import { Channel, Playlist } from "../types";
 import { countryName, countryFlag, titleCase } from "../textFormat";
 import StreamPreview from "./StreamPreview";
-import { fetchChannelStreams, fetchChannelPlaylists } from "../api";
+import { fetchChannelStreams, fetchChannelPlaylists, fetchPlaylists, fetchPlaylist, updatePlaylist } from "../api";
 
 interface Props {
   channel: Channel;
@@ -31,11 +31,30 @@ export default function ChannelDetailModal({ channel, selected, onToggle, onClos
   const [copied, setCopied] = useState(false);
   const [streams, setStreams] = useState<{ url: string; quality: string | null; sortOrder: number }[]>([]);
   const [playlists, setPlaylists] = useState<{ id: string; name: string }[]>([]);
+  const [allPlaylists, setAllPlaylists] = useState<Playlist[]>([]);
+  const [addingToPlaylist, setAddingToPlaylist] = useState(false);
 
   useEffect(() => {
     fetchChannelStreams(channel.id).then(r => setStreams(r.streams)).catch(() => {});
     fetchChannelPlaylists(channel.id).then(r => setPlaylists(r.playlists)).catch(() => {});
+    fetchPlaylists().then(r => setAllPlaylists(r.playlists)).catch(() => {});
   }, [channel.id]);
+
+  async function handleAddToPlaylist(playlistId: string) {
+    setAddingToPlaylist(true);
+    try {
+      const full = await fetchPlaylist(playlistId);
+      const existingIds = full.channels.map((c) => c.id);
+      if (!existingIds.includes(channel.id)) {
+        await updatePlaylist(playlistId, { channelIds: [...existingIds, channel.id] });
+      }
+      fetchChannelPlaylists(channel.id).then(r => setPlaylists(r.playlists)).catch(() => {});
+    } catch {
+      // ignore
+    } finally {
+      setAddingToPlaylist(false);
+    }
+  }
 
   function copyUrl() {
     navigator.clipboard.writeText(channel.streamUrl!);
@@ -122,16 +141,34 @@ export default function ChannelDetailModal({ channel, selected, onToggle, onClos
           </div>
         </div>
 
-        {playlists.length > 0 && (
-          <div style={{ marginBottom: 16 }}>
-            <div className="meta" style={{ marginBottom: 4 }}>In playlists</div>
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+        <div style={{ marginBottom: 16 }}>
+          <div className="meta" style={{ marginBottom: 4 }}>Playlists</div>
+          {playlists.length > 0 ? (
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
               {playlists.map(p => (
-                <span key={p.id} className="badge muted">{p.name}</span>
+                <span key={p.id} className="badge muted">✓ {p.name}</span>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="meta" style={{ marginBottom: 6 }}>Not in any playlist.</div>
+          )}
+          {allPlaylists.filter(p => !playlists.some(mp => mp.id === p.id)).length > 0 && (
+            <div style={{ display: "flex", gap: 8 }}>
+              <select
+                defaultValue=""
+                disabled={addingToPlaylist}
+                onChange={(e) => { if (e.target.value) handleAddToPlaylist(e.target.value); e.target.value = ""; }}
+                style={{ flex: 1, background: "var(--panel)", border: "1px solid var(--border)", color: "var(--text)", padding: "6px 10px", borderRadius: 6, fontSize: 13 }}
+              >
+                <option value="">Add to playlist…</option>
+                {allPlaylists
+                  .filter(p => !playlists.some(mp => mp.id === p.id))
+                  .map(p => <option key={p.id} value={p.id}>{p.name}</option>)
+                }
+              </select>
+            </div>
+          )}
+        </div>
 
         {channel.streamUrl && (
           <>

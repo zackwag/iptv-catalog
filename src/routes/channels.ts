@@ -59,6 +59,12 @@ channelsRouter.get("/channels/status", (_req, res) => {
   res.json({ catalogRefreshedAt: getMeta("catalogRefreshedAt") });
 });
 
+// GET /channels/playlistmembers — returns the set of channel IDs present in any playlist
+channelsRouter.get("/channels/playlistmembers", (_req, res) => {
+  const rows = db.prepare("SELECT DISTINCT channelId FROM playlist_channels").all() as { channelId: string }[];
+  res.json({ channelIds: rows.map(r => r.channelId) });
+});
+
 // POST /channels/:id/block — block a channel and remove it from all playlists
 channelsRouter.post("/channels/:id/block", (req, res) => {
   const { id } = req.params;

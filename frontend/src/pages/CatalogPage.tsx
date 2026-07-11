@@ -8,6 +8,7 @@ import {
   createPlaylist,
   updatePlaylist,
   blockChannel,
+  fetchPlaylistMembers,
 } from "../api";
 import { Channel, ChannelFilters } from "../types";
 import Filters from "../components/Filters";
@@ -38,6 +39,7 @@ export default function CatalogPage() {
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [selectedChannels, setSelectedChannels] = useState<Map<string, Channel>>(new Map());
+  const [playlistMemberIds, setPlaylistMemberIds] = useState<Set<string>>(new Set());
   const [pageSize, setPageSize] = useState(() => {
     const saved = localStorage.getItem("catalogPageSize");
     const n = saved ? Number(saved) : NaN;
@@ -50,6 +52,10 @@ export default function CatalogPage() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [detailChannel, setDetailChannel] = useState<Channel | null>(null);
+
+  useEffect(() => {
+    fetchPlaylistMembers().then(r => setPlaylistMemberIds(new Set(r.channelIds))).catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetchCountries({ search: filters.search, category: filters.category, hasStream: filters.hasStream, hasEpg: filters.hasEpg })
@@ -236,6 +242,7 @@ export default function CatalogPage() {
             channels={channels}
             selectedIds={selectedIds}
             selectedChannels={selectedChannels}
+            playlistMemberIds={playlistMemberIds}
             filters={filters}
             onToggle={toggle}
             onToggleAll={toggleAll}

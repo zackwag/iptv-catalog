@@ -5,6 +5,7 @@ interface Props {
   channels: Channel[];
   selectedIds: Set<string>;
   selectedChannels?: Map<string, Channel>;
+  playlistMemberIds?: Set<string>;
   filters: ChannelFilters;
   onToggle: (id: string) => void;
   onToggleAll: (ids: string[]) => void;
@@ -27,7 +28,7 @@ const cellLink: React.CSSProperties = {
   color: "var(--link)",
 };
 
-export default function ChannelTable({ channels, selectedIds, selectedChannels, filters, onToggle, onToggleAll, onRowClick, onFilterChange, onBlock }: Props) {
+export default function ChannelTable({ channels, selectedIds, selectedChannels, playlistMemberIds, filters, onToggle, onToggleAll, onRowClick, onFilterChange, onBlock }: Props) {
   const pinnedChannels = selectedChannels
     ? Array.from(selectedChannels.values()).filter((c) => !channels.some((p) => p.id === c.id))
     : [];
@@ -75,6 +76,9 @@ export default function ChannelTable({ channels, selectedIds, selectedChannels, 
         <td>
           <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
             <button className="icon-link" style={{ padding: 0, fontSize: 13 }} onClick={(e) => { e.stopPropagation(); onRowClick(ch); }}>{ch.name}</button>
+            {playlistMemberIds?.has(ch.id) && (
+              <span title="In a playlist" style={{ fontSize: 11, color: "var(--success)", flexShrink: 0 }}>★</span>
+            )}
             {ch.isNsfw === 1 && (
               <span className="badge" style={{ background: "#3d1a1a", color: "#f16c6c", fontSize: 10, flexShrink: 0 }}>NSFW</span>
             )}
