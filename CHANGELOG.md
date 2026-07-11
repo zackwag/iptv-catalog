@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.6] - 2026-07-11
+
+- feat: searchable country blocklist, normalize blocked tag display
+
+
 ## [1.0.5] - 2026-07-11
 
 - feat: pin selected channels to top of table across pages
