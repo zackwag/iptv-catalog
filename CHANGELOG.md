@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.7] - 2026-07-11
+
+- feat: playlist membership indicator and quick-add from channel detail
+
+
 ## [1.0.6] - 2026-07-11
 
 - feat: searchable country blocklist, normalize blocked tag display
