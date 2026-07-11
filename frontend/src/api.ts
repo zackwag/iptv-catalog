@@ -31,7 +31,9 @@ export function fetchChannels(
   return request(`/channels?${params.toString()}`);
 }
 
-export function fetchCountries(filters?: Partial<Omit<ChannelFilters, "country">>): Promise<{ countries: string[] }> {
+export function fetchCountries(
+  filters?: Partial<Omit<ChannelFilters, "country">>
+): Promise<{ countries: string[] }> {
   const params = new URLSearchParams();
   if (filters?.search) params.set("search", filters.search);
   if (filters?.category) params.set("category", filters.category);
@@ -41,7 +43,9 @@ export function fetchCountries(filters?: Partial<Omit<ChannelFilters, "country">
   return request(`/channels/countries${qs ? `?${qs}` : ""}`);
 }
 
-export function fetchCategories(filters?: Partial<Omit<ChannelFilters, "category">>): Promise<{ categories: string[] }> {
+export function fetchCategories(
+  filters?: Partial<Omit<ChannelFilters, "category">>
+): Promise<{ categories: string[] }> {
   const params = new URLSearchParams();
   if (filters?.search) params.set("search", filters.search);
   if (filters?.country) params.set("country", filters.country);
@@ -136,7 +140,11 @@ export function updateSettings(updates: {
   });
 }
 
-export function triggerCatalogRefresh(): Promise<{ ok: boolean; channelCount?: number; error?: string }> {
+export function triggerCatalogRefresh(): Promise<{
+  ok: boolean;
+  channelCount?: number;
+  error?: string;
+}> {
   return request("/channels/refresh", { method: "POST" });
 }
 
@@ -146,7 +154,9 @@ export function triggerPlaylistTest(
   return request(`/playlists/${id}/test`, { method: "POST" });
 }
 
-export function fetchNotifications(dismissed?: boolean): Promise<{ notifications: Notification[] }> {
+export function fetchNotifications(
+  dismissed?: boolean
+): Promise<{ notifications: Notification[] }> {
   const params = dismissed !== undefined ? `?dismissed=${dismissed}` : "";
   return request(`/notifications${params}`);
 }
@@ -209,7 +219,10 @@ export function fetchBackupPlaylists(): Promise<{ playlists: BackupPlaylistSumma
   return request("/backup/playlists");
 }
 
-export function exportBackup(playlistIds: string[], includeSettings: boolean): Promise<BackupBundle> {
+export function exportBackup(
+  playlistIds: string[],
+  includeSettings: boolean
+): Promise<BackupBundle> {
   return request("/backup/export", {
     method: "POST",
     body: JSON.stringify({ playlistIds, includeSettings }),
@@ -251,11 +264,15 @@ export function fetchBlockedChannels(): Promise<{ channels: BlockedChannel[] }> 
   return request("/channels/blocked");
 }
 
-export function fetchChannelStreams(id: string): Promise<{ streams: { url: string; quality: string | null; sortOrder: number }[] }> {
+export function fetchChannelStreams(
+  id: string
+): Promise<{ streams: { url: string; quality: string | null; sortOrder: number }[] }> {
   return request(`/channels/${id}/streams`);
 }
 
-export function fetchChannelPlaylists(id: string): Promise<{ playlists: { id: string; name: string }[] }> {
+export function fetchChannelPlaylists(
+  id: string
+): Promise<{ playlists: { id: string; name: string }[] }> {
   return request(`/channels/${id}/playlists`);
 }
 

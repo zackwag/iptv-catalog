@@ -1,5 +1,12 @@
 import { Router } from "express";
-import { getChannels, getChannelsCount, getDistinctCountries, getDistinctCategories, refreshCatalog, purgeBlocklistedFromPlaylists } from "../services/catalogService";
+import {
+  getChannels,
+  getChannelsCount,
+  getDistinctCountries,
+  getDistinctCategories,
+  refreshCatalog,
+  purgeBlocklistedFromPlaylists,
+} from "../services/catalogService";
 import { regenerateEpgChannelsFile } from "../services/epgSchedulerService";
 import { getMeta, db } from "../db";
 import { createLogger } from "../logger";
@@ -61,8 +68,10 @@ channelsRouter.get("/channels/status", (_req, res) => {
 
 // GET /channels/playlistmembers — returns the set of channel IDs present in any playlist
 channelsRouter.get("/channels/playlistmembers", (_req, res) => {
-  const rows = db.prepare("SELECT DISTINCT channelId FROM playlist_channels").all() as { channelId: string }[];
-  res.json({ channelIds: rows.map(r => r.channelId) });
+  const rows = db.prepare("SELECT DISTINCT channelId FROM playlist_channels").all() as {
+    channelId: string;
+  }[];
+  res.json({ channelIds: rows.map((r) => r.channelId) });
 });
 
 // POST /channels/:id/block — block a channel and remove it from all playlists
@@ -73,7 +82,10 @@ channelsRouter.post("/channels/:id/block", (req, res) => {
 
   const now = new Date().toISOString();
   db.transaction(() => {
-    db.prepare("INSERT OR IGNORE INTO blocked_channels (channelId, blockedAt) VALUES (?, ?)").run(id, now);
+    db.prepare("INSERT OR IGNORE INTO blocked_channels (channelId, blockedAt) VALUES (?, ?)").run(
+      id,
+      now
+    );
     db.prepare("DELETE FROM playlist_channels WHERE channelId = ?").run(id);
   })();
 
@@ -84,30 +96,41 @@ channelsRouter.post("/channels/:id/block", (req, res) => {
 
 // GET /channels/:id/playlists — which playlists contain this channel
 channelsRouter.get("/channels/:id/playlists", (req, res) => {
-  const rows = db.prepare(`
+  const rows = db
+    .prepare(
+      `
     SELECT p.id, p.name FROM playlists p
     JOIN playlist_channels pc ON pc.playlistId = p.id
     WHERE pc.channelId = ?
     ORDER BY p.name ASC
-  `).all(req.params.id) as { id: string; name: string }[];
+  `
+    )
+    .all(req.params.id) as { id: string; name: string }[];
   res.json({ playlists: rows });
 });
 
 // GET /channels/:id/streams — all known stream URLs for a channel
 channelsRouter.get("/channels/:id/streams", (req, res) => {
-  const streams = db.prepare("SELECT url, quality, sortOrder FROM channel_streams WHERE channelId = ? ORDER BY sortOrder ASC")
+  const streams = db
+    .prepare(
+      "SELECT url, quality, sortOrder FROM channel_streams WHERE channelId = ? ORDER BY sortOrder ASC"
+    )
     .all(req.params.id) as { url: string; quality: string | null; sortOrder: number }[];
   res.json({ streams });
 });
 
 // GET /channels/blocked — list all individually blocked channels
 channelsRouter.get("/channels/blocked", (_req, res) => {
-  const rows = db.prepare(`
+  const rows = db
+    .prepare(
+      `
     SELECT bc.channelId, bc.blockedAt, c.name
     FROM blocked_channels bc
     LEFT JOIN channels c ON c.id = bc.channelId
     ORDER BY bc.blockedAt DESC
-  `).all() as { channelId: string; blockedAt: string; name: string }[];
+  `
+    )
+    .all() as { channelId: string; blockedAt: string; name: string }[];
   res.json({ channels: rows });
 });
 

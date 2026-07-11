@@ -33,6 +33,8 @@ export function titleCase(value: string | null | undefined): string {
   return value
     .split(/[\s_-]+/)
     .filter(Boolean)
-    .map((word) => word.toLowerCase() === "xxx" ? "XXX" : word[0].toUpperCase() + word.slice(1).toLowerCase())
+    .map((word) =>
+      word.toLowerCase() === "xxx" ? "XXX" : word[0].toUpperCase() + word.slice(1).toLowerCase()
+    )
     .join(" ");
 }

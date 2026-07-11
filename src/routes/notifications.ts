@@ -78,10 +78,23 @@ notificationsRouter.post("/dev/notifications", (req, res) => {
   const id = `dev-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
   const now = new Date().toISOString();
 
-  db.prepare(`
+  db.prepare(
+    `
     INSERT INTO notifications (id, playlistId, playlistName, channelId, channelName, message, createdAt, dismissed, failureCount, lastFailedAt, kind)
     VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
-  `).run(id, playlistId, playlistName, channelId, channelName, message, now, failureCount, now, kind);
+  `
+  ).run(
+    id,
+    playlistId,
+    playlistName,
+    channelId,
+    channelName,
+    message,
+    now,
+    failureCount,
+    now,
+    kind
+  );
 
   log.info(`dev: created test notification ${id}`);
   res.status(201).json({ ok: true, id });

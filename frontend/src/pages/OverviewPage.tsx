@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchSettings, fetchPlaylists, fetchNotifications, triggerCatalogRefresh, AppSettings } from "../api";
+import {
+  fetchSettings,
+  fetchPlaylists,
+  fetchNotifications,
+  triggerCatalogRefresh,
+  AppSettings,
+} from "../api";
 import { Playlist, Notification } from "../types";
 import { describeCron } from "../cronFormat";
 
@@ -44,7 +50,12 @@ export default function OverviewPage() {
   }
 
   if (loading) return <div className="empty-state">Loading overview…</div>;
-  if (error) return <div className="empty-state" style={{ color: "var(--danger)" }}>{error}</div>;
+  if (error)
+    return (
+      <div className="empty-state" style={{ color: "var(--danger)" }}>
+        {error}
+      </div>
+    );
   if (!settings) return null;
 
   const totalChannels = playlists.reduce((sum, p) => sum + p.channelCount, 0);
@@ -86,8 +97,8 @@ export default function OverviewPage() {
         {settings.epgHealth.isStale ? (
           playlists.length === 0 ? (
             <div className="meta">
-              Nothing to generate yet — the EPG sidecar only fetches guide data for channels
-              used in a playlist. Create one, then the sidecar's next run (or a restart of the{" "}
+              Nothing to generate yet — the EPG sidecar only fetches guide data for channels used in
+              a playlist. Create one, then the sidecar's next run (or a restart of the{" "}
               <code style={{ fontSize: 11 }}>iptv-catalog-epg</code> container, to trigger it
               immediately) will pick it up.
             </div>

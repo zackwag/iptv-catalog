@@ -82,7 +82,9 @@ export function loadSettings(): Settings {
     setMeta(CATALOG_CRON_KEY, catalogRefreshCron);
     log.info(`no catalogRefreshCron stored yet, seeded with default "${catalogRefreshCron}"`);
   } else if (!cron.validate(catalogRefreshCron)) {
-    log.error(`stored catalogRefreshCron "${catalogRefreshCron}" is invalid, falling back to default`);
+    log.error(
+      `stored catalogRefreshCron "${catalogRefreshCron}" is invalid, falling back to default`
+    );
     catalogRefreshCron = FALLBACK_DEFAULT_CRON;
   }
 
@@ -148,7 +150,10 @@ export function saveSettings(updates: Partial<Settings>): Settings {
   }
 
   if (updates.autoRemoveFailureThreshold !== undefined) {
-    if (!Number.isInteger(updates.autoRemoveFailureThreshold) || updates.autoRemoveFailureThreshold <= 0) {
+    if (
+      !Number.isInteger(updates.autoRemoveFailureThreshold) ||
+      updates.autoRemoveFailureThreshold <= 0
+    ) {
       throw new Error("autoRemoveFailureThreshold must be a positive integer");
     }
     setMeta(AUTO_REMOVE_THRESHOLD_KEY, String(updates.autoRemoveFailureThreshold));
@@ -169,7 +174,10 @@ export function saveSettings(updates: Partial<Settings>): Settings {
   }
 
   if (updates.epgStalenessWarningHours !== undefined) {
-    if (!Number.isInteger(updates.epgStalenessWarningHours) || updates.epgStalenessWarningHours <= 0) {
+    if (
+      !Number.isInteger(updates.epgStalenessWarningHours) ||
+      updates.epgStalenessWarningHours <= 0
+    ) {
       throw new Error("epgStalenessWarningHours must be a positive integer");
     }
     setMeta(EPG_STALENESS_WARNING_HOURS_KEY, String(updates.epgStalenessWarningHours));

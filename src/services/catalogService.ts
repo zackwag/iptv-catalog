@@ -111,7 +111,12 @@ export async function refreshCatalog(): Promise<{ channelCount: number }> {
       // Store all fallback streams
       const streams = allStreamsByChannel.get(c.id) ?? [];
       for (let i = 0; i < streams.length; i++) {
-        upsertStream.run({ channelId: c.id, url: streams[i].url, quality: streams[i].quality ?? null, sortOrder: i });
+        upsertStream.run({
+          channelId: c.id,
+          url: streams[i].url,
+          quality: streams[i].quality ?? null,
+          sortOrder: i,
+        });
       }
     }
   });
@@ -130,7 +135,10 @@ export async function refreshCatalog(): Promise<{ channelCount: number }> {
   return { channelCount: rawChannels.length };
 }
 
-function buildWhereClause(filters: ChannelFilters): { where: string; params: Record<string, unknown> } {
+function buildWhereClause(filters: ChannelFilters): {
+  where: string;
+  params: Record<string, unknown>;
+} {
   const clauses: string[] = ["isClosed = 0"];
   const params: Record<string, unknown> = {};
 
@@ -159,21 +167,29 @@ function buildWhereClause(filters: ChannelFilters): { where: string; params: Rec
   const settings = loadSettings();
 
   const blockedCountries = settings.blockCountries
-    .split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
   for (let i = 0; i < blockedCountries.length; i++) {
     clauses.push(`(country IS NULL OR LOWER(country) != @blockedCountry${i})`);
     params[`blockedCountry${i}`] = blockedCountries[i];
   }
 
   const blockedCategories = settings.blockCategories
-    .split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
   for (let i = 0; i < blockedCategories.length; i++) {
-    clauses.push(`(categories IS NULL OR (',' || LOWER(categories) || ',') NOT LIKE @blockedCat${i})`);
+    clauses.push(
+      `(categories IS NULL OR (',' || LOWER(categories) || ',') NOT LIKE @blockedCat${i})`
+    );
     params[`blockedCat${i}`] = `%,${blockedCategories[i]},%`;
   }
 
   const blockedDomains = settings.blockStreamDomains
-    .split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
   for (let i = 0; i < blockedDomains.length; i++) {
     clauses.push(`(streamUrl IS NULL OR LOWER(streamUrl) NOT LIKE @blockedDomain${i})`);
     params[`blockedDomain${i}`] = `%${blockedDomains[i]}%`;
@@ -213,7 +229,9 @@ export function getChannelsByIds(ids: string[]): Channel[] {
   if (ids.length === 0) return [];
   const placeholders = ids.map(() => "?").join(",");
   return db
-    .prepare(`SELECT * FROM channels WHERE id IN (${placeholders}) AND id NOT IN (SELECT channelId FROM blocked_channels)`)
+    .prepare(
+      `SELECT * FROM channels WHERE id IN (${placeholders}) AND id NOT IN (SELECT channelId FROM blocked_channels)`
+    )
     .all(...ids) as Channel[];
 }
 
@@ -229,56 +247,82 @@ export function purgeBlocklistedFromPlaylists(): number {
   const deletes: number[] = [];
 
   // blocked_channels table
-  const r0 = db.prepare(`
+  const r0 = db
+    .prepare(
+      `
     DELETE FROM playlist_channels WHERE channelId IN (
       SELECT channelId FROM blocked_channels
     )
-  `).run();
+  `
+    )
+    .run();
   deletes.push(r0.changes);
 
   // NSFW
   if (settings.blockNsfw) {
-    const rNsfw = db.prepare(`
+    const rNsfw = db
+      .prepare(
+        `
       DELETE FROM playlist_channels WHERE channelId IN (
         SELECT id FROM channels WHERE isNsfw = 1
       )
-    `).run();
+    `
+      )
+      .run();
     deletes.push(rNsfw.changes);
   }
 
   // blocked countries
   const blockedCountries = settings.blockCountries
-    .split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
   for (const country of blockedCountries) {
-    const r = db.prepare(`
+    const r = db
+      .prepare(
+        `
       DELETE FROM playlist_channels WHERE channelId IN (
         SELECT id FROM channels WHERE LOWER(country) = ?
       )
-    `).run(country);
+    `
+      )
+      .run(country);
     deletes.push(r.changes);
   }
 
   // blocked categories
   const blockedCategories = settings.blockCategories
-    .split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
   for (const cat of blockedCategories) {
-    const r = db.prepare(`
+    const r = db
+      .prepare(
+        `
       DELETE FROM playlist_channels WHERE channelId IN (
         SELECT id FROM channels WHERE (',' || LOWER(categories) || ',') LIKE ?
       )
-    `).run(`%,${cat},%`);
+    `
+      )
+      .run(`%,${cat},%`);
     deletes.push(r.changes);
   }
 
   // blocked stream domains
   const blockedDomains = settings.blockStreamDomains
-    .split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
   for (const domain of blockedDomains) {
-    const r = db.prepare(`
+    const r = db
+      .prepare(
+        `
       DELETE FROM playlist_channels WHERE channelId IN (
         SELECT id FROM channels WHERE streamUrl IS NOT NULL AND LOWER(streamUrl) LIKE ?
       )
-    `).run(`%${domain}%`);
+    `
+      )
+      .run(`%${domain}%`);
     deletes.push(r.changes);
   }
 
@@ -289,22 +333,25 @@ export function purgeBlocklistedFromPlaylists(): number {
 
 /** Returns all known stream URLs for a channel in sort order, excluding the primary. */
 export function getFallbackStreams(channelId: string): { url: string; quality: string | null }[] {
-  const primary = (db.prepare("SELECT streamUrl FROM channels WHERE id = ?").get(channelId) as { streamUrl: string | null } | undefined)?.streamUrl;
-  return db.prepare("SELECT url, quality FROM channel_streams WHERE channelId = ? ORDER BY sortOrder ASC")
+  const primary = (
+    db.prepare("SELECT streamUrl FROM channels WHERE id = ?").get(channelId) as
+      { streamUrl: string | null } | undefined
+  )?.streamUrl;
+  return db
+    .prepare("SELECT url, quality FROM channel_streams WHERE channelId = ? ORDER BY sortOrder ASC")
     .all(channelId) as { url: string; quality: string | null }[];
 }
 
 /** Promotes a fallback URL to be the primary stream for a channel. */
 export function promoteStream(channelId: string, url: string): void {
-  db.prepare("UPDATE channels SET streamUrl = ?, streamQuality = (SELECT quality FROM channel_streams WHERE channelId = ? AND url = ?) WHERE id = ?")
-    .run(url, channelId, url, channelId);
+  db.prepare(
+    "UPDATE channels SET streamUrl = ?, streamQuality = (SELECT quality FROM channel_streams WHERE channelId = ? AND url = ?) WHERE id = ?"
+  ).run(url, channelId, url, channelId);
 }
 
 export function getDistinctCountries(filters: Omit<ChannelFilters, "country"> = {}): string[] {
   const { where, params } = buildWhereClause({ ...filters, country: undefined });
-  const extraWhere = where
-    ? `${where} AND country IS NOT NULL`
-    : "WHERE country IS NOT NULL";
+  const extraWhere = where ? `${where} AND country IS NOT NULL` : "WHERE country IS NOT NULL";
   const rows = db
     .prepare(`SELECT DISTINCT country FROM channels ${extraWhere} ORDER BY country`)
     .all(params) as { country: string }[];
@@ -333,9 +380,7 @@ export function getDistinctCategories(filters: Omit<ChannelFilters, "category"> 
   const noCatWhere = where
     ? `${where} AND (categories IS NULL OR categories = '')`
     : "WHERE (categories IS NULL OR categories = '')";
-  const uncategorized = db
-    .prepare(`SELECT 1 FROM channels ${noCatWhere} LIMIT 1`)
-    .get(params);
+  const uncategorized = db.prepare(`SELECT 1 FROM channels ${noCatWhere} LIMIT 1`).get(params);
   if (uncategorized) set.add("__none__");
 
   return Array.from(set).sort();

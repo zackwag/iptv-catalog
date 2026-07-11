@@ -67,9 +67,7 @@ export function getPlaylist(id: string): PlaylistWithChannels | null {
   if (!playlist) return null;
 
   const channelIds = db
-    .prepare(
-      "SELECT channelId FROM playlist_channels WHERE playlistId = ? ORDER BY sortOrder ASC"
-    )
+    .prepare("SELECT channelId FROM playlist_channels WHERE playlistId = ? ORDER BY sortOrder ASC")
     .all(id) as { channelId: string }[];
 
   const channels = getChannelsByIds(channelIds.map((c) => c.channelId));
@@ -147,9 +145,9 @@ export function deletePlaylist(id: string): boolean {
 
 /** Returns the set of channel ids referenced by ANY playlist, for scoping EPG grabs. */
 export function getAllReferencedChannelIds(): string[] {
-  const rows = db
-    .prepare("SELECT DISTINCT channelId FROM playlist_channels")
-    .all() as { channelId: string }[];
+  const rows = db.prepare("SELECT DISTINCT channelId FROM playlist_channels").all() as {
+    channelId: string;
+  }[];
   return rows.map((r) => r.channelId);
 }
 

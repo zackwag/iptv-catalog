@@ -1,5 +1,6 @@
 import { Router } from "express";
 import https from "https";
+import http from "http";
 import {
   createPlaylist,
   listPlaylists,
@@ -22,7 +23,10 @@ export const playlistsRouter = Router();
 const CHANNELS_DVR_SOURCE_LIMIT = 500;
 
 function withLimitWarning<T extends { channelCount: number }>(playlist: T) {
-  return { ...playlist, exceedsChannelsDvrLimit: playlist.channelCount > CHANNELS_DVR_SOURCE_LIMIT };
+  return {
+    ...playlist,
+    exceedsChannelsDvrLimit: playlist.channelCount > CHANNELS_DVR_SOURCE_LIMIT,
+  };
 }
 
 export function getBaseUrl(req: import("express").Request): string {
@@ -242,9 +246,7 @@ playlistsRouter.post("/playlists/:id/push-to-dvr", async (req, res) => {
         rejectUnauthorized: false,
       };
 
-      const makeRequest = url.protocol === "https:"
-        ? https.request
-        : require("http").request;
+      const makeRequest = url.protocol === "https:" ? https.request : http.request;
 
       const dvReq = makeRequest(options, (dvRes: import("http").IncomingMessage) => {
         const chunks: Buffer[] = [];

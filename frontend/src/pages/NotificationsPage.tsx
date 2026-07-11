@@ -45,16 +45,31 @@ export default function NotificationsPage() {
   }
 
   if (loading) return <div className="empty-state">Loading notifications…</div>;
-  if (error) return <div className="empty-state" style={{ color: "var(--danger)" }}>{error}</div>;
+  if (error)
+    return (
+      <div className="empty-state" style={{ color: "var(--danger)" }}>
+        {error}
+      </div>
+    );
   if (notifications.length === 0) {
     return <div className="empty-state">No active alerts — every tested feed is responding.</div>;
   }
 
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 16,
+        }}
+      >
         <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>
-          Active alerts <span className="meta" style={{ fontWeight: 400 }}>({notifications.length})</span>
+          Active alerts{" "}
+          <span className="meta" style={{ fontWeight: 400 }}>
+            ({notifications.length})
+          </span>
         </h2>
         <button className="secondary" disabled={bulkBusy} onClick={handleDismissAll}>
           {bulkBusy ? "Dismissing…" : "Dismiss all"}
@@ -67,17 +82,36 @@ export default function NotificationsPage() {
           <div
             key={n.id}
             className="playlist-card"
-            style={{ borderLeft: `3px solid ${isRemoved ? "var(--border)" : "var(--danger)"}`, paddingLeft: 14 }}
+            style={{
+              borderLeft: `3px solid ${isRemoved ? "var(--border)" : "var(--danger)"}`,
+              paddingLeft: 14,
+            }}
           >
-            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "space-between",
+                gap: 12,
+              }}
+            >
               <div style={{ minWidth: 0 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    flexWrap: "wrap",
+                    marginBottom: 4,
+                  }}
+                >
                   <span style={{ fontWeight: 600, fontSize: 14 }}>{n.channelName}</span>
                   <span
                     className="badge"
-                    style={isRemoved
-                      ? { background: "#2a2f38", color: "var(--text-dim)" }
-                      : { background: "rgba(241,108,108,0.15)", color: "var(--danger)" }
+                    style={
+                      isRemoved
+                        ? { background: "#2a2f38", color: "var(--text-dim)" }
+                        : { background: "rgba(241,108,108,0.15)", color: "var(--danger)" }
                     }
                   >
                     {isRemoved ? "removed" : `failing ×${n.failureCount}`}
@@ -86,7 +120,9 @@ export default function NotificationsPage() {
                 <div className="meta" style={{ marginBottom: 6 }}>
                   {n.playlistName} · {new Date(n.lastFailedAt || n.createdAt).toLocaleString()}
                 </div>
-                <div style={{ fontSize: 13, color: isRemoved ? "var(--text-dim)" : "var(--danger)" }}>
+                <div
+                  style={{ fontSize: 13, color: isRemoved ? "var(--text-dim)" : "var(--danger)" }}
+                >
                   {n.message}
                 </div>
               </div>

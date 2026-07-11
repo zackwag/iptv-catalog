@@ -112,7 +112,12 @@ settingsRouter.patch("/settings", (req, res) => {
     }
 
     let purgedCount = 0;
-    if (blockCountries !== undefined || blockCategories !== undefined || blockStreamDomains !== undefined || blockNsfw !== undefined) {
+    if (
+      blockCountries !== undefined ||
+      blockCategories !== undefined ||
+      blockStreamDomains !== undefined ||
+      blockNsfw !== undefined
+    ) {
       purgedCount = purgeBlocklistedFromPlaylists();
       if (purgedCount > 0) regenerateEpgChannelsFile();
     }

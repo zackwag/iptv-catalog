@@ -1,0 +1,6 @@
+dist/
+public/
+node_modules/
+frontend/dist/
+frontend/node_modules/
+*.lock

@@ -2,7 +2,13 @@ import { useEffect, useState } from "react";
 import { Channel, Playlist } from "../types";
 import { countryName, countryFlag, titleCase } from "../textFormat";
 import StreamPreview from "./StreamPreview";
-import { fetchChannelStreams, fetchChannelPlaylists, fetchPlaylists, fetchPlaylist, updatePlaylist } from "../api";
+import {
+  fetchChannelStreams,
+  fetchChannelPlaylists,
+  fetchPlaylists,
+  fetchPlaylist,
+  updatePlaylist,
+} from "../api";
 
 interface Props {
   channel: Channel;
@@ -26,18 +32,32 @@ function qualityLabel(q: string | null): string {
   return q.toUpperCase();
 }
 
-export default function ChannelDetailModal({ channel, selected, onToggle, onClose, onBlock }: Props) {
+export default function ChannelDetailModal({
+  channel,
+  selected,
+  onToggle,
+  onClose,
+  onBlock,
+}: Props) {
   const [showPreview, setShowPreview] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [streams, setStreams] = useState<{ url: string; quality: string | null; sortOrder: number }[]>([]);
+  const [streams, setStreams] = useState<
+    { url: string; quality: string | null; sortOrder: number }[]
+  >([]);
   const [playlists, setPlaylists] = useState<{ id: string; name: string }[]>([]);
   const [allPlaylists, setAllPlaylists] = useState<Playlist[]>([]);
   const [addingToPlaylist, setAddingToPlaylist] = useState(false);
 
   useEffect(() => {
-    fetchChannelStreams(channel.id).then(r => setStreams(r.streams)).catch(() => {});
-    fetchChannelPlaylists(channel.id).then(r => setPlaylists(r.playlists)).catch(() => {});
-    fetchPlaylists().then(r => setAllPlaylists(r.playlists)).catch(() => {});
+    fetchChannelStreams(channel.id)
+      .then((r) => setStreams(r.streams))
+      .catch(() => {});
+    fetchChannelPlaylists(channel.id)
+      .then((r) => setPlaylists(r.playlists))
+      .catch(() => {});
+    fetchPlaylists()
+      .then((r) => setAllPlaylists(r.playlists))
+      .catch(() => {});
   }, [channel.id]);
 
   async function handleAddToPlaylist(playlistId: string) {
@@ -48,7 +68,9 @@ export default function ChannelDetailModal({ channel, selected, onToggle, onClos
       if (!existingIds.includes(channel.id)) {
         await updatePlaylist(playlistId, { channelIds: [...existingIds, channel.id] });
       }
-      fetchChannelPlaylists(channel.id).then(r => setPlaylists(r.playlists)).catch(() => {});
+      fetchChannelPlaylists(channel.id)
+        .then((r) => setPlaylists(r.playlists))
+        .catch(() => {});
     } catch {
       // ignore
     } finally {
@@ -66,25 +88,43 @@ export default function ChannelDetailModal({ channel, selected, onToggle, onClos
     ? channel.categories.split(",").filter(Boolean).map(titleCase)
     : [];
 
-  const fallbackCount = streams.filter(s => s.url !== channel.streamUrl).length;
+  const fallbackCount = streams.filter((s) => s.url !== channel.streamUrl).length;
 
   return (
     <div className="iptv-dialog-overlay" onClick={onClose}>
-      <div className="modal" style={{ width: "min(420px, 92vw)" }} onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal"
+        style={{ width: "min(420px, 92vw)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
           {channel.logo ? (
             <img
               src={channel.logo}
               alt=""
-              style={{ width: 56, height: 56, objectFit: "contain", borderRadius: 8, background: "#000" }}
+              style={{
+                width: 56,
+                height: 56,
+                objectFit: "contain",
+                borderRadius: 8,
+                background: "#000",
+              }}
               onError={(e) => (e.currentTarget.style.display = "none")}
             />
           ) : (
             <div
               style={{
-                width: 56, height: 56, borderRadius: 8, background: "var(--accent-dim)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontWeight: 700, fontSize: 16, color: "var(--text)", flexShrink: 0,
+                width: 56,
+                height: 56,
+                borderRadius: 8,
+                background: "var(--accent-dim)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 700,
+                fontSize: 16,
+                color: "var(--text)",
+                flexShrink: 0,
               }}
             >
               {initials(channel.name)}
@@ -94,7 +134,12 @@ export default function ChannelDetailModal({ channel, selected, onToggle, onClos
             <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
               <h3 style={{ margin: 0 }}>{channel.name}</h3>
               {channel.isNsfw === 1 && (
-                <span className="badge" style={{ background: "#3d1a1a", color: "#f16c6c", fontSize: 10 }}>NSFW</span>
+                <span
+                  className="badge"
+                  style={{ background: "#3d1a1a", color: "#f16c6c", fontSize: 10 }}
+                >
+                  NSFW
+                </span>
               )}
             </div>
             <div className="meta">
@@ -104,11 +149,15 @@ export default function ChannelDetailModal({ channel, selected, onToggle, onClos
         </div>
 
         <div style={{ marginBottom: 10 }}>
-          <div className="meta" style={{ marginBottom: 4 }}>Categories</div>
+          <div className="meta" style={{ marginBottom: 4 }}>
+            Categories
+          </div>
           {categories.length > 0 ? (
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
               {categories.map((c) => (
-                <span key={c} className="badge category">{c}</span>
+                <span key={c} className="badge category">
+                  {c}
+                </span>
               ))}
             </div>
           ) : (
@@ -118,17 +167,24 @@ export default function ChannelDetailModal({ channel, selected, onToggle, onClos
 
         <div style={{ display: "flex", gap: 24, marginBottom: 16, flexWrap: "wrap" }}>
           <div>
-            <div className="meta" style={{ marginBottom: 4 }}>Stream</div>
+            <div className="meta" style={{ marginBottom: 4 }}>
+              Stream
+            </div>
             {channel.streamUrl ? (
               <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                 <span className="badge stream">Available</span>
                 {channel.streamQuality && (
-                  <span className="badge" style={{ background: "#1e2a1a", color: "#7fc87a", fontSize: 10 }}>
+                  <span
+                    className="badge"
+                    style={{ background: "#1e2a1a", color: "#7fc87a", fontSize: 10 }}
+                  >
                     {qualityLabel(channel.streamQuality)}
                   </span>
                 )}
                 {fallbackCount > 0 && (
-                  <span className="meta" style={{ fontSize: 11 }}>+{fallbackCount} fallback{fallbackCount > 1 ? "s" : ""}</span>
+                  <span className="meta" style={{ fontSize: 11 }}>
+                    +{fallbackCount} fallback{fallbackCount > 1 ? "s" : ""}
+                  </span>
                 )}
               </div>
             ) : (
@@ -136,35 +192,61 @@ export default function ChannelDetailModal({ channel, selected, onToggle, onClos
             )}
           </div>
           <div>
-            <div className="meta" style={{ marginBottom: 4 }}>EPG guide</div>
-            {channel.epgSite ? <span className="badge epg">Available</span> : <span className="badge muted">None</span>}
+            <div className="meta" style={{ marginBottom: 4 }}>
+              EPG guide
+            </div>
+            {channel.epgSite ? (
+              <span className="badge epg">Available</span>
+            ) : (
+              <span className="badge muted">None</span>
+            )}
           </div>
         </div>
 
         <div style={{ marginBottom: 16 }}>
-          <div className="meta" style={{ marginBottom: 4 }}>Playlists</div>
+          <div className="meta" style={{ marginBottom: 4 }}>
+            Playlists
+          </div>
           {playlists.length > 0 ? (
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
-              {playlists.map(p => (
-                <span key={p.id} className="badge muted">✓ {p.name}</span>
+              {playlists.map((p) => (
+                <span key={p.id} className="badge muted">
+                  ✓ {p.name}
+                </span>
               ))}
             </div>
           ) : (
-            <div className="meta" style={{ marginBottom: 6 }}>Not in any playlist.</div>
+            <div className="meta" style={{ marginBottom: 6 }}>
+              Not in any playlist.
+            </div>
           )}
-          {allPlaylists.filter(p => !playlists.some(mp => mp.id === p.id)).length > 0 && (
+          {allPlaylists.filter((p) => !playlists.some((mp) => mp.id === p.id)).length > 0 && (
             <div style={{ display: "flex", gap: 8 }}>
               <select
                 defaultValue=""
                 disabled={addingToPlaylist}
-                onChange={(e) => { if (e.target.value) handleAddToPlaylist(e.target.value); e.target.value = ""; }}
-                style={{ flex: 1, background: "var(--panel)", border: "1px solid var(--border)", color: "var(--text)", padding: "6px 10px", borderRadius: 6, fontSize: 13 }}
+                onChange={(e) => {
+                  if (e.target.value) handleAddToPlaylist(e.target.value);
+                  e.target.value = "";
+                }}
+                style={{
+                  flex: 1,
+                  background: "var(--panel)",
+                  border: "1px solid var(--border)",
+                  color: "var(--text)",
+                  padding: "6px 10px",
+                  borderRadius: 6,
+                  fontSize: 13,
+                }}
               >
                 <option value="">Add to playlist…</option>
                 {allPlaylists
-                  .filter(p => !playlists.some(mp => mp.id === p.id))
-                  .map(p => <option key={p.id} value={p.id}>{p.name}</option>)
-                }
+                  .filter((p) => !playlists.some((mp) => mp.id === p.id))
+                  .map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
               </select>
             </div>
           )}
@@ -176,7 +258,11 @@ export default function ChannelDetailModal({ channel, selected, onToggle, onClos
               <StreamPreview streamUrl={channel.streamUrl} />
             ) : (
               <div style={{ marginBottom: 16 }}>
-                <button className="secondary" style={{ width: "100%" }} onClick={() => setShowPreview(true)}>
+                <button
+                  className="secondary"
+                  style={{ width: "100%" }}
+                  onClick={() => setShowPreview(true)}
+                >
                   ▶ Preview stream
                 </button>
               </div>

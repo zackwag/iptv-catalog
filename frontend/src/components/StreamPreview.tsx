@@ -59,14 +59,39 @@ export default function StreamPreview({ streamUrl }: Props) {
   }, [streamUrl]);
 
   return (
-    <div style={{ marginBottom: 16, borderRadius: 8, overflow: "hidden", background: "#000", position: "relative" }}>
+    <div
+      style={{
+        marginBottom: 16,
+        borderRadius: 8,
+        overflow: "hidden",
+        background: "#000",
+        position: "relative",
+      }}
+    >
       {loading && !error && (
-        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: 13 }}>
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "var(--text-dim)",
+            fontSize: 13,
+          }}
+        >
           Loading stream…
         </div>
       )}
       {error ? (
-        <div style={{ padding: "20px 12px", textAlign: "center", color: "var(--text-dim)", fontSize: 13 }}>
+        <div
+          style={{
+            padding: "20px 12px",
+            textAlign: "center",
+            color: "var(--text-dim)",
+            fontSize: 13,
+          }}
+        >
           {error}
         </div>
       ) : (

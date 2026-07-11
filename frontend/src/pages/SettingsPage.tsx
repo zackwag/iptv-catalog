@@ -1,5 +1,16 @@
 import { useEffect, useState } from "react";
-import { fetchSettings, updateSettings, triggerCatalogRefresh, fetchCountries, fetchCategories, fetchBlockedChannels, unblockChannel, AppSettings, ThemeMode, BlockedChannel } from "../api";
+import {
+  fetchSettings,
+  updateSettings,
+  triggerCatalogRefresh,
+  fetchCountries,
+  fetchCategories,
+  fetchBlockedChannels,
+  unblockChannel,
+  AppSettings,
+  ThemeMode,
+  BlockedChannel,
+} from "../api";
 import { applyTheme, watchSystemTheme } from "../theme";
 import { describeCron } from "../cronFormat";
 import { countryName, countryFlag, titleCase } from "../textFormat";
@@ -48,7 +59,6 @@ export default function SettingsPage() {
   const [blockDomainsMessage, setBlockDomainsMessage] = useState<string | null>(null);
   const [allCountries, setAllCountries] = useState<string[]>([]);
   const [allCategories, setAllCategories] = useState<string[]>([]);
-  const [countryPickerVal, setCountryPickerVal] = useState("");
   const [categoryPickerVal, setCategoryPickerVal] = useState("");
   const [countrySearch, setCountrySearch] = useState("");
   const [showCountryPicker, setShowCountryPicker] = useState(false);
@@ -79,8 +89,22 @@ export default function SettingsPage() {
         setEpgStalenessDraft(String(s.epgStalenessWarningHours));
         setThemeDraft(s.theme);
         setDvrUrlDraft(s.channelsDvrUrl || "");
-        setBlockedCountries(s.blockCountries ? s.blockCountries.split(",").map(x => x.trim()).filter(Boolean) : []);
-        setBlockedCategories(s.blockCategories ? s.blockCategories.split(",").map(x => x.trim()).filter(Boolean) : []);
+        setBlockedCountries(
+          s.blockCountries
+            ? s.blockCountries
+                .split(",")
+                .map((x) => x.trim())
+                .filter(Boolean)
+            : []
+        );
+        setBlockedCategories(
+          s.blockCategories
+            ? s.blockCategories
+                .split(",")
+                .map((x) => x.trim())
+                .filter(Boolean)
+            : []
+        );
         setBlockStreamDomainsDraft(s.blockStreamDomains || "");
         setBlockNsfw(s.blockNsfw ?? false);
       })
@@ -91,9 +115,11 @@ export default function SettingsPage() {
   useEffect(load, []);
 
   useEffect(() => {
-    fetchCountries().then(r => setAllCountries([...r.countries].sort()));
-    fetchCategories().then(r => setAllCategories([...r.categories].filter(c => c !== "__none__").sort()));
-    fetchBlockedChannels().then(r => setBlockedChannels(r.channels));
+    fetchCountries().then((r) => setAllCountries([...r.countries].sort()));
+    fetchCategories().then((r) =>
+      setAllCategories([...r.categories].filter((c) => c !== "__none__").sort())
+    );
+    fetchBlockedChannels().then((r) => setBlockedChannels(r.channels));
   }, []);
 
   const effectiveCron = preset === "custom" ? customCron : preset;
@@ -208,7 +234,9 @@ export default function SettingsPage() {
       const updated = await updateSettings({ channelsDvrUrl: dvrUrlDraft.trim() });
       setSettings(updated);
       setDvrUrlDraft(updated.channelsDvrUrl || "");
-      setDvrUrlMessage(updated.channelsDvrUrl ? "Channels DVR URL saved." : "Channels DVR URL cleared.");
+      setDvrUrlMessage(
+        updated.channelsDvrUrl ? "Channels DVR URL saved." : "Channels DVR URL cleared."
+      );
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -259,8 +287,13 @@ export default function SettingsPage() {
     try {
       const updated = await updateSettings({ blockCountries: next.join(",") });
       setSettings(updated);
-      if (updated.purgedFromPlaylists) setBlocklistPurgeMessage(`Removed ${updated.purgedFromPlaylists} channel(s) from playlists.`);
-    } catch (e) { setError((e as Error).message); }
+      if (updated.purgedFromPlaylists)
+        setBlocklistPurgeMessage(
+          `Removed ${updated.purgedFromPlaylists} channel(s) from playlists.`
+        );
+    } catch (e) {
+      setError((e as Error).message);
+    }
   }
 
   async function saveBlockedCategories(next: string[]) {
@@ -268,14 +301,19 @@ export default function SettingsPage() {
     try {
       const updated = await updateSettings({ blockCategories: next.join(",") });
       setSettings(updated);
-      if (updated.purgedFromPlaylists) setBlocklistPurgeMessage(`Removed ${updated.purgedFromPlaylists} channel(s) from playlists.`);
-    } catch (e) { setError((e as Error).message); }
+      if (updated.purgedFromPlaylists)
+        setBlocklistPurgeMessage(
+          `Removed ${updated.purgedFromPlaylists} channel(s) from playlists.`
+        );
+    } catch (e) {
+      setError((e as Error).message);
+    }
   }
 
   async function handleUnblockChannel(channelId: string) {
     try {
       await unblockChannel(channelId);
-      setBlockedChannels(prev => prev.filter(c => c.channelId !== channelId));
+      setBlockedChannels((prev) => prev.filter((c) => c.channelId !== channelId));
     } catch (e) {
       setError((e as Error).message);
     }
@@ -286,7 +324,10 @@ export default function SettingsPage() {
     try {
       const updated = await updateSettings({ blockNsfw: enabled });
       setSettings(updated);
-      if (updated.purgedFromPlaylists) setBlocklistPurgeMessage(`Removed ${updated.purgedFromPlaylists} channel(s) from playlists.`);
+      if (updated.purgedFromPlaylists)
+        setBlocklistPurgeMessage(
+          `Removed ${updated.purgedFromPlaylists} channel(s) from playlists.`
+        );
     } catch (e) {
       setBlockNsfw(!enabled);
       setError((e as Error).message);
@@ -300,9 +341,11 @@ export default function SettingsPage() {
     try {
       const updated = await updateSettings({ blockStreamDomains: blockStreamDomainsDraft.trim() });
       setSettings(updated);
-      setBlockDomainsMessage(updated.purgedFromPlaylists
-        ? `Saved. Removed ${updated.purgedFromPlaylists} channel(s) from playlists.`
-        : "Saved.");
+      setBlockDomainsMessage(
+        updated.purgedFromPlaylists
+          ? `Saved. Removed ${updated.purgedFromPlaylists} channel(s) from playlists.`
+          : "Saved."
+      );
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -342,9 +385,9 @@ export default function SettingsPage() {
       <div className="playlist-card">
         <h3>Refresh schedule</h3>
         <div className="meta" style={{ marginBottom: 14 }}>
-          Controls how often channels, streams, and EPG source mappings are re-pulled from
-          iptv-org. Changing this takes effect right away — the running schedule is updated
-          in place, no container restart required.
+          Controls how often channels, streams, and EPG source mappings are re-pulled from iptv-org.
+          Changing this takes effect right away — the running schedule is updated in place, no
+          container restart required.
         </div>
 
         <div className="filters" style={{ marginBottom: 10 }}>
@@ -375,8 +418,14 @@ export default function SettingsPage() {
           </>
         )}
 
-        {error && <div style={{ color: "var(--danger)", fontSize: 13, marginBottom: 10 }}>{error}</div>}
-        {saveMessage && <div style={{ color: "var(--success)", fontSize: 13, marginBottom: 10 }}>{saveMessage}</div>}
+        {error && (
+          <div style={{ color: "var(--danger)", fontSize: 13, marginBottom: 10 }}>{error}</div>
+        )}
+        {saveMessage && (
+          <div style={{ color: "var(--success)", fontSize: 13, marginBottom: 10 }}>
+            {saveMessage}
+          </div>
+        )}
 
         <button className="primary" disabled={saving || !effectiveCron.trim()} onClick={handleSave}>
           {saving ? "Saving…" : "Save schedule"}
@@ -396,7 +445,9 @@ export default function SettingsPage() {
           {refreshing ? "Refreshing…" : "Refresh catalog now"}
         </button>
         {refreshMessage && (
-          <div style={{ fontSize: 13, marginTop: 10, color: "var(--text-dim)" }}>{refreshMessage}</div>
+          <div style={{ fontSize: 13, marginTop: 10, color: "var(--text-dim)" }}>
+            {refreshMessage}
+          </div>
         )}
       </div>
 
@@ -404,8 +455,8 @@ export default function SettingsPage() {
       <div className="playlist-card">
         <h3>Sidecar health</h3>
         <div className="meta" style={{ marginBottom: 14 }}>
-          The <code style={{ fontSize: 11 }}>iptv-org/epg</code> container generates program
-          guide data on its own schedule (its own <code style={{ fontSize: 11 }}>CRON_SCHEDULE</code>,
+          The <code style={{ fontSize: 11 }}>iptv-org/epg</code> container generates program guide
+          data on its own schedule (its own <code style={{ fontSize: 11 }}>CRON_SCHEDULE</code>,
           separate from this app). This reports whether it's actually still producing fresh data.
         </div>
         {settings?.epgHealth.isStale ? (
@@ -438,14 +489,18 @@ export default function SettingsPage() {
           <span className="meta">hours with no update</span>
           <button
             className="secondary"
-            disabled={savingEpgStaleness || epgStalenessDraft === String(settings?.epgStalenessWarningHours)}
+            disabled={
+              savingEpgStaleness || epgStalenessDraft === String(settings?.epgStalenessWarningHours)
+            }
             onClick={handleSaveEpgStaleness}
           >
             Save
           </button>
         </div>
         {epgStalenessMessage && (
-          <div style={{ fontSize: 13, color: "var(--success)", marginTop: 8 }}>{epgStalenessMessage}</div>
+          <div style={{ fontSize: 13, color: "var(--success)", marginTop: 8 }}>
+            {epgStalenessMessage}
+          </div>
         )}
       </div>
 
@@ -454,8 +509,8 @@ export default function SettingsPage() {
         <h3>Auto-remove failing channels</h3>
         <div className="meta" style={{ marginBottom: 14 }}>
           Off by default. When enabled, a channel is dropped from its playlist after this many
-          consecutive failed checks — you'll still get a notification when it happens, so
-          nothing disappears silently.
+          consecutive failed checks — you'll still get a notification when it happens, so nothing
+          disappears silently.
         </div>
 
         <label className="checkbox" style={{ marginBottom: 12 }}>
@@ -480,7 +535,10 @@ export default function SettingsPage() {
             />
             <button
               className="secondary"
-              disabled={savingAutoRemove || autoRemoveThreshold === String(settings?.autoRemoveFailureThreshold)}
+              disabled={
+                savingAutoRemove ||
+                autoRemoveThreshold === String(settings?.autoRemoveFailureThreshold)
+              }
               onClick={handleSaveThreshold}
             >
               Save
@@ -495,7 +553,9 @@ export default function SettingsPage() {
 
       <div className="settings-section-heading">Blocklists</div>
       {blocklistPurgeMessage && (
-        <div style={{ fontSize: 13, color: "var(--success)", gridColumn: "1 / -1" }}>{blocklistPurgeMessage}</div>
+        <div style={{ fontSize: 13, color: "var(--success)", gridColumn: "1 / -1" }}>
+          {blocklistPurgeMessage}
+        </div>
       )}
       <div className="playlist-card">
         <h3>Block countries</h3>
@@ -509,60 +569,126 @@ export default function SettingsPage() {
               placeholder="Search countries…"
               value={countrySearch}
               onFocus={() => setShowCountryPicker(true)}
-              onChange={(e) => { setCountrySearch(e.target.value); setShowCountryPicker(true); }}
-              style={{ flex: 1, background: "var(--panel)", border: "1px solid var(--border)", color: "var(--text)", padding: "7px 10px", borderRadius: 6, fontSize: 13 }}
+              onChange={(e) => {
+                setCountrySearch(e.target.value);
+                setShowCountryPicker(true);
+              }}
+              style={{
+                flex: 1,
+                background: "var(--panel)",
+                border: "1px solid var(--border)",
+                color: "var(--text)",
+                padding: "7px 10px",
+                borderRadius: 6,
+                fontSize: 13,
+              }}
             />
             {showCountryPicker && (
-              <button className="secondary" onClick={() => { setShowCountryPicker(false); setCountrySearch(""); }}>
+              <button
+                className="secondary"
+                onClick={() => {
+                  setShowCountryPicker(false);
+                  setCountrySearch("");
+                }}
+              >
                 Done
               </button>
             )}
           </div>
           {showCountryPicker && (
-            <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, background: "var(--panel)", border: "1px solid var(--border)", borderRadius: 8, zIndex: 20, maxHeight: 260, overflowY: "auto" }}>
+            <div
+              style={{
+                position: "absolute",
+                top: "calc(100% + 4px)",
+                left: 0,
+                right: 0,
+                background: "var(--panel)",
+                border: "1px solid var(--border)",
+                borderRadius: 8,
+                zIndex: 20,
+                maxHeight: 260,
+                overflowY: "auto",
+              }}
+            >
               {allCountries
-                .filter(c => {
+                .filter((c) => {
                   const q = countrySearch.toLowerCase();
-                  return !q || c.toLowerCase().includes(q) || countryName(c).toLowerCase().includes(q);
+                  return (
+                    !q || c.toLowerCase().includes(q) || countryName(c).toLowerCase().includes(q)
+                  );
                 })
-                .map(c => {
+                .map((c) => {
                   const blocked = blockedCountries.includes(c.toLowerCase());
                   return (
-                    <label key={c} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 12px", cursor: "pointer", background: blocked ? "rgba(79,156,249,0.06)" : undefined }}
-                      onMouseEnter={(e) => { if (!blocked) (e.currentTarget as HTMLElement).style.background = "var(--panel-hover)"; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = blocked ? "rgba(79,156,249,0.06)" : ""; }}
+                    <label
+                      key={c}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        padding: "7px 12px",
+                        cursor: "pointer",
+                        background: blocked ? "rgba(79,156,249,0.06)" : undefined,
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!blocked)
+                          (e.currentTarget as HTMLElement).style.background = "var(--panel-hover)";
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLElement).style.background = blocked
+                          ? "rgba(79,156,249,0.06)"
+                          : "";
+                      }}
                     >
                       <input
                         type="checkbox"
                         checked={blocked}
                         onChange={() => {
                           const next = blocked
-                            ? blockedCountries.filter(x => x !== c.toLowerCase())
+                            ? blockedCountries.filter((x) => x !== c.toLowerCase())
                             : [...blockedCountries, c.toLowerCase()];
                           saveBlockedCountries(next);
                         }}
                       />
-                      <span style={{ fontSize: 13 }}>{countryFlag(c)} {countryName(c)}</span>
+                      <span style={{ fontSize: 13 }}>
+                        {countryFlag(c)} {countryName(c)}
+                      </span>
                     </label>
                   );
                 })}
-              {allCountries.filter(c => {
+              {allCountries.filter((c) => {
                 const q = countrySearch.toLowerCase();
-                return !q || c.toLowerCase().includes(q) || countryName(c).toLowerCase().includes(q);
+                return (
+                  !q || c.toLowerCase().includes(q) || countryName(c).toLowerCase().includes(q)
+                );
               }).length === 0 && (
-                <div style={{ padding: "10px 12px", fontSize: 13, color: "var(--text-dim)" }}>No countries match.</div>
+                <div style={{ padding: "10px 12px", fontSize: 13, color: "var(--text-dim)" }}>
+                  No countries match.
+                </div>
               )}
             </div>
           )}
         </div>
         {blockedCountries.length > 0 ? (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {blockedCountries.map(c => (
-              <span key={c} className="badge muted" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+            {blockedCountries.map((c) => (
+              <span
+                key={c}
+                className="badge muted"
+                style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
+              >
                 {countryFlag(c)} {countryName(c)}
                 <button
-                  onClick={() => saveBlockedCountries(blockedCountries.filter(x => x !== c))}
-                  style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", padding: 0, lineHeight: 1, fontSize: 13 }}
+                  onClick={() => saveBlockedCountries(blockedCountries.filter((x) => x !== c))}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "inherit",
+                    cursor: "pointer",
+                    padding: 0,
+                    lineHeight: 1,
+                    fontSize: 13,
+                  }}
                 >
                   ×
                 </button>
@@ -587,9 +713,11 @@ export default function SettingsPage() {
           >
             <option value="">Add a category…</option>
             {allCategories
-              .filter(c => !blockedCategories.includes(c.toLowerCase()))
-              .map(c => (
-                <option key={c} value={c}>{c}</option>
+              .filter((c) => !blockedCategories.includes(c.toLowerCase()))
+              .map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
               ))}
           </select>
           <button
@@ -607,12 +735,24 @@ export default function SettingsPage() {
         </div>
         {blockedCategories.length > 0 ? (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {blockedCategories.map(c => (
-              <span key={c} className="badge muted" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+            {blockedCategories.map((c) => (
+              <span
+                key={c}
+                className="badge muted"
+                style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
+              >
                 {titleCase(c)}
                 <button
-                  onClick={() => saveBlockedCategories(blockedCategories.filter(x => x !== c))}
-                  style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", padding: 0, lineHeight: 1, fontSize: 13 }}
+                  onClick={() => saveBlockedCategories(blockedCategories.filter((x) => x !== c))}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "inherit",
+                    cursor: "pointer",
+                    padding: 0,
+                    lineHeight: 1,
+                    fontSize: 13,
+                  }}
                 >
                   ×
                 </button>
@@ -627,7 +767,8 @@ export default function SettingsPage() {
       <div className="playlist-card">
         <h3>Block NSFW content</h3>
         <div className="meta" style={{ marginBottom: 10 }}>
-          When enabled, channels flagged as adult/NSFW in the iptv-org catalog are hidden from Browse Channels and removed from playlists.
+          When enabled, channels flagged as adult/NSFW in the iptv-org catalog are hidden from
+          Browse Channels and removed from playlists.
         </div>
         <label className="checkbox">
           <input
@@ -642,7 +783,8 @@ export default function SettingsPage() {
       <div className="playlist-card">
         <h3>Block stream domains</h3>
         <div className="meta" style={{ marginBottom: 10 }}>
-          Channels whose stream URL contains any listed domain are hidden. Comma-separated, matched as a substring.
+          Channels whose stream URL contains any listed domain are hidden. Comma-separated, matched
+          as a substring.
         </div>
         <input
           type="text"
@@ -653,13 +795,18 @@ export default function SettingsPage() {
         />
         <button
           className="primary"
-          disabled={savingBlockDomains || blockStreamDomainsDraft.trim() === (settings?.blockStreamDomains || "")}
+          disabled={
+            savingBlockDomains ||
+            blockStreamDomainsDraft.trim() === (settings?.blockStreamDomains || "")
+          }
           onClick={handleSaveBlockDomains}
         >
           {savingBlockDomains ? "Saving…" : "Save"}
         </button>
         {blockDomainsMessage && (
-          <div style={{ fontSize: 13, color: "var(--success)", marginTop: 8 }}>{blockDomainsMessage}</div>
+          <div style={{ fontSize: 13, color: "var(--success)", marginTop: 8 }}>
+            {blockDomainsMessage}
+          </div>
         )}
       </div>
 
@@ -670,12 +817,24 @@ export default function SettingsPage() {
         </div>
         {blockedChannels.length > 0 ? (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {blockedChannels.map(c => (
-              <span key={c.channelId} className="badge muted" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+            {blockedChannels.map((c) => (
+              <span
+                key={c.channelId}
+                className="badge muted"
+                style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
+              >
                 {c.name || c.channelId}
                 <button
                   onClick={() => handleUnblockChannel(c.channelId)}
-                  style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", padding: 0, lineHeight: 1, fontSize: 13 }}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "inherit",
+                    cursor: "pointer",
+                    padding: 0,
+                    lineHeight: 1,
+                    fontSize: 13,
+                  }}
                 >
                   ×
                 </button>
@@ -691,8 +850,8 @@ export default function SettingsPage() {
       <div className="playlist-card">
         <h3>Webhook notifications</h3>
         <div className="meta" style={{ marginBottom: 14 }}>
-          Optional. Fires a <code style={{ fontSize: 11 }}>POST</code> with a JSON body whenever
-          a channel starts failing or gets auto-removed — leave blank to disable. Works with any
+          Optional. Fires a <code style={{ fontSize: 11 }}>POST</code> with a JSON body whenever a
+          channel starts failing or gets auto-removed — leave blank to disable. Works with any
           endpoint that can receive a webhook, including Home Assistant's REST/webhook triggers.
         </div>
 
@@ -713,11 +872,14 @@ export default function SettingsPage() {
         </button>
 
         {webhookMessage && (
-          <div style={{ fontSize: 13, color: "var(--success)", marginTop: 10 }}>{webhookMessage}</div>
+          <div style={{ fontSize: 13, color: "var(--success)", marginTop: 10 }}>
+            {webhookMessage}
+          </div>
         )}
 
         <div className="meta" style={{ marginTop: 12, fontSize: 11 }}>
-          Payload: <code style={{ fontSize: 11 }}>
+          Payload:{" "}
+          <code style={{ fontSize: 11 }}>
             {`{ event: "channel_failing" | "channel_removed", playlistName, channelName, message, timestamp }`}
           </code>
         </div>
@@ -726,8 +888,8 @@ export default function SettingsPage() {
       <div className="playlist-card">
         <h3>Channels DVR</h3>
         <div className="meta" style={{ marginBottom: 14 }}>
-          Optional. Set your Channels DVR server URL to enable one-click "Push to Channels DVR"
-          from any playlist's Export menu. Format:{" "}
+          Optional. Set your Channels DVR server URL to enable one-click "Push to Channels DVR" from
+          any playlist's Export menu. Format:{" "}
           <code style={{ fontSize: 11 }}>http://192.168.1.50:8089</code>
         </div>
 
@@ -748,7 +910,9 @@ export default function SettingsPage() {
         </button>
 
         {dvrUrlMessage && (
-          <div style={{ fontSize: 13, color: "var(--success)", marginTop: 10 }}>{dvrUrlMessage}</div>
+          <div style={{ fontSize: 13, color: "var(--success)", marginTop: 10 }}>
+            {dvrUrlMessage}
+          </div>
         )}
       </div>
 
@@ -778,11 +942,22 @@ export default function SettingsPage() {
         </button>
 
         {baseUrlMessage && (
-          <div style={{ fontSize: 13, color: "var(--success)", marginTop: 10 }}>{baseUrlMessage}</div>
+          <div style={{ fontSize: 13, color: "var(--success)", marginTop: 10 }}>
+            {baseUrlMessage}
+          </div>
         )}
       </div>
-      <div style={{ gridColumn: "1 / -1", marginTop: 8, paddingTop: 16, borderTop: "1px solid var(--border)" }}>
-        <span className="meta" style={{ fontSize: 12 }}>iptv-catalog v{settings?.version}</span>
+      <div
+        style={{
+          gridColumn: "1 / -1",
+          marginTop: 8,
+          paddingTop: 16,
+          borderTop: "1px solid var(--border)",
+        }}
+      >
+        <span className="meta" style={{ fontSize: 12 }}>
+          iptv-catalog v{settings?.version}
+        </span>
       </div>
     </div>
   );

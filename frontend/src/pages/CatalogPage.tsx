@@ -54,11 +54,18 @@ export default function CatalogPage() {
   const [detailChannel, setDetailChannel] = useState<Channel | null>(null);
 
   useEffect(() => {
-    fetchPlaylistMembers().then(r => setPlaylistMemberIds(new Set(r.channelIds))).catch(() => {});
+    fetchPlaylistMembers()
+      .then((r) => setPlaylistMemberIds(new Set(r.channelIds)))
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
-    fetchCountries({ search: filters.search, category: filters.category, hasStream: filters.hasStream, hasEpg: filters.hasEpg })
+    fetchCountries({
+      search: filters.search,
+      category: filters.category,
+      hasStream: filters.hasStream,
+      hasEpg: filters.hasEpg,
+    })
       .then((r) => {
         setCountries(r.countries);
         if (filters.country && !r.countries.includes(filters.country)) {
@@ -66,7 +73,12 @@ export default function CatalogPage() {
         }
       })
       .catch(() => {});
-    fetchCategories({ search: filters.search, country: filters.country, hasStream: filters.hasStream, hasEpg: filters.hasEpg })
+    fetchCategories({
+      search: filters.search,
+      country: filters.country,
+      hasStream: filters.hasStream,
+      hasEpg: filters.hasEpg,
+    })
       .then((r) => {
         setCategories(r.categories);
         if (filters.category && !r.categories.includes(filters.category)) {
@@ -126,7 +138,11 @@ export default function CatalogPage() {
     const next = new Set(selectedIds);
     if (next.has(id)) {
       next.delete(id);
-      setSelectedChannels((prev) => { const m = new Map(prev); m.delete(id); return m; });
+      setSelectedChannels((prev) => {
+        const m = new Map(prev);
+        m.delete(id);
+        return m;
+      });
     } else {
       next.add(id);
       const ch = channels.find((c) => c.id === id);
@@ -140,12 +156,18 @@ export default function CatalogPage() {
     const next = new Set(selectedIds);
     if (allSelected) {
       ids.forEach((id) => next.delete(id));
-      setSelectedChannels((prev) => { const m = new Map(prev); ids.forEach((id) => m.delete(id)); return m; });
+      setSelectedChannels((prev) => {
+        const m = new Map(prev);
+        ids.forEach((id) => m.delete(id));
+        return m;
+      });
     } else {
       ids.forEach((id) => next.add(id));
       setSelectedChannels((prev) => {
         const m = new Map(prev);
-        channels.forEach((ch) => { if (ids.includes(ch.id)) m.set(ch.id, ch); });
+        channels.forEach((ch) => {
+          if (ids.includes(ch.id)) m.set(ch.id, ch);
+        });
         return m;
       });
     }
@@ -166,12 +188,25 @@ export default function CatalogPage() {
   }
 
   async function handleBlock(channel: Channel) {
-    if (!confirm(`Block "${channel.name}"? It will be removed from all playlists and hidden from Browse Channels.`)) return;
+    if (
+      !confirm(
+        `Block "${channel.name}"? It will be removed from all playlists and hidden from Browse Channels.`
+      )
+    )
+      return;
     try {
       await blockChannel(channel.id);
       setChannels((prev) => prev.filter((c) => c.id !== channel.id));
-      setSelectedIds((prev) => { const next = new Set(prev); next.delete(channel.id); return next; });
-      setSelectedChannels((prev) => { const m = new Map(prev); m.delete(channel.id); return m; });
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(channel.id);
+        return next;
+      });
+      setSelectedChannels((prev) => {
+        const m = new Map(prev);
+        m.delete(channel.id);
+        return m;
+      });
       if (detailChannel?.id === channel.id) setDetailChannel(null);
       setTotal((prev) => prev - 1);
       setToast(`"${channel.name}" blocked.`);
@@ -182,14 +217,21 @@ export default function CatalogPage() {
 
   async function handleBulkBlock() {
     const count = selectedIds.size;
-    if (!confirm(`Block ${count} channel${count === 1 ? "" : "s"}? They will be removed from all playlists and hidden from Browse Channels.`)) return;
+    if (
+      !confirm(
+        `Block ${count} channel${count === 1 ? "" : "s"}? They will be removed from all playlists and hidden from Browse Channels.`
+      )
+    )
+      return;
     const ids = Array.from(selectedIds);
     let blocked = 0;
     for (const id of ids) {
       try {
         await blockChannel(id);
         blocked++;
-      } catch { /* continue */ }
+      } catch {
+        /* continue */
+      }
     }
     setChannels((prev) => prev.filter((c) => !ids.includes(c.id)));
     setSelectedIds(new Set());
@@ -227,7 +269,12 @@ export default function CatalogPage() {
         </div>
       )}
 
-      <Filters filters={filters} onChange={setFilters} countries={countries} categories={categories} />
+      <Filters
+        filters={filters}
+        onChange={setFilters}
+        countries={countries}
+        categories={categories}
+      />
 
       {error && (
         <div className="empty-state" style={{ color: "var(--danger)" }}>
@@ -253,17 +300,32 @@ export default function CatalogPage() {
           {total > 0 && (
             <div className="pagination">
               <div className="pagination-nav">
-                <button className="secondary" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+                <button
+                  className="secondary"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => p - 1)}
+                >
                   Previous
                 </button>
-                <span className="range-text">{rangeStart}–{rangeEnd} of {total}</span>
+                <span className="range-text">
+                  {rangeStart}–{rangeEnd} of {total}
+                </span>
                 <select
                   value={page}
                   onChange={(e) => setPage(Number(e.target.value))}
-                  style={{ background: "var(--panel)", border: "1px solid var(--border)", color: "var(--text)", borderRadius: 6, padding: "6px 8px", fontSize: 13 }}
+                  style={{
+                    background: "var(--panel)",
+                    border: "1px solid var(--border)",
+                    color: "var(--text)",
+                    borderRadius: 6,
+                    padding: "6px 8px",
+                    fontSize: 13,
+                  }}
                 >
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-                    <option key={n} value={n}>Page {n} of {totalPages}</option>
+                    <option key={n} value={n}>
+                      Page {n} of {totalPages}
+                    </option>
                   ))}
                 </select>
                 <button
@@ -282,10 +344,19 @@ export default function CatalogPage() {
                   localStorage.setItem("catalogPageSize", String(n));
                   setPageSize(n);
                 }}
-                style={{ background: "var(--panel)", border: "1px solid var(--border)", color: "var(--text)", borderRadius: 6, padding: "6px 8px", fontSize: 13 }}
+                style={{
+                  background: "var(--panel)",
+                  border: "1px solid var(--border)",
+                  color: "var(--text)",
+                  borderRadius: 6,
+                  padding: "6px 8px",
+                  fontSize: 13,
+                }}
               >
                 {PAGE_SIZE_OPTIONS.map((n) => (
-                  <option key={n} value={n}>{n} per page</option>
+                  <option key={n} value={n}>
+                    {n} per page
+                  </option>
                 ))}
               </select>
             </div>
@@ -294,11 +365,19 @@ export default function CatalogPage() {
       )}
 
       <div className="selection-bar">
-        <span className="count">{selectedIds.size} channel{selectedIds.size === 1 ? "" : "s"} selected</span>
+        <span className="count">
+          {selectedIds.size} channel{selectedIds.size === 1 ? "" : "s"} selected
+        </span>
         <div style={{ display: "flex", gap: 8 }}>
           {selectedIds.size > 0 && (
             <>
-              <button className="secondary" onClick={() => { setSelectedIds(new Set()); setSelectedChannels(new Map()); }}>
+              <button
+                className="secondary"
+                onClick={() => {
+                  setSelectedIds(new Set());
+                  setSelectedChannels(new Map());
+                }}
+              >
                 Clear
               </button>
               <button
@@ -320,7 +399,11 @@ export default function CatalogPage() {
               </button>
             </>
           ) : (
-            <button className="primary" disabled={selectedIds.size === 0} onClick={() => setShowSaveModal(true)}>
+            <button
+              className="primary"
+              disabled={selectedIds.size === 0}
+              onClick={() => setShowSaveModal(true)}
+            >
               Save as playlist
             </button>
           )}

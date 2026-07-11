@@ -64,7 +64,11 @@ export default function ImportBackupModal({ bundle, onClose, onImported }: Props
 
   return (
     <div className="iptv-dialog-overlay" onClick={onClose}>
-      <div className="modal" style={{ width: "min(420px, 92vw)" }} onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal"
+        style={{ width: "min(420px, 92vw)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <h3>Import backup</h3>
 
         {playlists.length === 0 && !hasSettings ? (
@@ -82,9 +86,19 @@ export default function ImportBackupModal({ bundle, onClose, onImported }: Props
                   {playlists.map((p, i) => (
                     <label
                       key={i}
-                      style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", cursor: "pointer" }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        padding: "6px 0",
+                        cursor: "pointer",
+                      }}
                     >
-                      <input type="checkbox" checked={selectedIndexes.has(i)} onChange={() => toggle(i)} />
+                      <input
+                        type="checkbox"
+                        checked={selectedIndexes.has(i)}
+                        onChange={() => toggle(i)}
+                      />
                       <span style={{ flex: 1 }}>{p.name}</span>
                       <span className="meta" style={{ fontSize: 11 }}>
                         {p.channelIds.length} ch
@@ -108,7 +122,9 @@ export default function ImportBackupModal({ bundle, onClose, onImported }: Props
           </>
         )}
 
-        {error && <div style={{ color: "var(--danger)", fontSize: 13, marginBottom: 10 }}>{error}</div>}
+        {error && (
+          <div style={{ color: "var(--danger)", fontSize: 13, marginBottom: 10 }}>{error}</div>
+        )}
 
         <div className="actions">
           <button className="secondary" onClick={onClose}>

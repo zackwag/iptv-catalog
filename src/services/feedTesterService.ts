@@ -99,12 +99,9 @@ function recordFailure(
 
   if (existing) {
     const nextCount = existing.failureCount + 1;
-    db.prepare("UPDATE notifications SET message = ?, lastFailedAt = ?, failureCount = ? WHERE id = ?").run(
-      message,
-      now,
-      nextCount,
-      existing.id
-    );
+    db.prepare(
+      "UPDATE notifications SET message = ?, lastFailedAt = ?, failureCount = ? WHERE id = ?"
+    ).run(message, now, nextCount, existing.id);
     return { failureCount: nextCount, isNew: false };
   }
 
@@ -126,7 +123,10 @@ function autoResolve(playlistId: string, channelId: string): void {
 }
 
 function removeChannelFromPlaylist(playlistId: string, channelId: string): void {
-  db.prepare("DELETE FROM playlist_channels WHERE playlistId = ? AND channelId = ?").run(playlistId, channelId);
+  db.prepare("DELETE FROM playlist_channels WHERE playlistId = ? AND channelId = ?").run(
+    playlistId,
+    channelId
+  );
 }
 
 function recordRemoval(
@@ -160,14 +160,21 @@ function recordRemoval(
     failureCount
   );
 
-  log.warn(`auto-removed "${channelName}" from playlist "${playlistName}" after ${failureCount} failures`);
+  log.warn(
+    `auto-removed "${channelName}" from playlist "${playlistName}" after ${failureCount} failures`
+  );
 }
 
 function markTested(playlistId: string): void {
-  db.prepare("UPDATE playlists SET lastTestedAt = ? WHERE id = ?").run(new Date().toISOString(), playlistId);
+  db.prepare("UPDATE playlists SET lastTestedAt = ? WHERE id = ?").run(
+    new Date().toISOString(),
+    playlistId
+  );
 }
 
-export async function testPlaylist(playlistId: string): Promise<{ tested: number; failed: number; removed: number }> {
+export async function testPlaylist(
+  playlistId: string
+): Promise<{ tested: number; failed: number; removed: number }> {
   const playlist = getPlaylist(playlistId);
   if (!playlist) {
     throw new Error(`playlist ${playlistId} not found`);
@@ -189,7 +196,7 @@ export async function testPlaylist(playlistId: string): Promise<{ tested: number
 
     // If primary fails, walk fallbacks in order
     if (!result.ok) {
-      const fallbacks = getFallbackStreams(ch.id).filter(f => f.url !== ch.streamUrl);
+      const fallbacks = getFallbackStreams(ch.id).filter((f) => f.url !== ch.streamUrl);
       for (const fallback of fallbacks) {
         const fallbackResult = await testStreamUrl(fallback.url);
         if (fallbackResult.ok) {

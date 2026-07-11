@@ -10,7 +10,15 @@ interface Props {
   onClose: () => void;
 }
 
-function CopyRow({ label, value, monospace = false }: { label: string; value: string; monospace?: boolean }) {
+function CopyRow({
+  label,
+  value,
+  monospace = false,
+}: {
+  label: string;
+  value: string;
+  monospace?: boolean;
+}) {
   const [copied, setCopied] = useState(false);
 
   function copy() {
@@ -22,7 +30,9 @@ function CopyRow({ label, value, monospace = false }: { label: string; value: st
 
   return (
     <div style={{ marginBottom: 14 }}>
-      <div className="meta" style={{ marginBottom: 4 }}>{label}</div>
+      <div className="meta" style={{ marginBottom: 4 }}>
+        {label}
+      </div>
       <div className="url-field">
         <code style={monospace ? { fontFamily: "monospace" } : undefined}>{value}</code>
         <button className="icon-link" onClick={copy}>
@@ -37,7 +47,14 @@ function sanitizeFilename(name: string): string {
   return name.replace(/[^a-z0-9\-_]+/gi, "_").toLowerCase() || "playlist";
 }
 
-export default function ExportModal({ playlistId, playlistName, m3uUrl, epgUrl, hasDvrUrl, onClose }: Props) {
+export default function ExportModal({
+  playlistId,
+  playlistName,
+  m3uUrl,
+  epgUrl,
+  hasDvrUrl,
+  onClose,
+}: Props) {
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [pushing, setPushing] = useState(false);
@@ -84,7 +101,11 @@ export default function ExportModal({ playlistId, playlistName, m3uUrl, epgUrl, 
 
   return (
     <div className="iptv-dialog-overlay" onClick={onClose}>
-      <div className="modal" style={{ width: "min(480px, 92vw)" }} onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal"
+        style={{ width: "min(480px, 92vw)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <h3>Export "{playlistName}"</h3>
 
         <CopyRow label="M3U playlist URL" value={m3uUrl} />
@@ -95,11 +116,13 @@ export default function ExportModal({ playlistId, playlistName, m3uUrl, epgUrl, 
             {downloading ? "Downloading…" : "Download .m3u file"}
           </button>
           {downloadError && (
-            <div style={{ color: "var(--danger)", fontSize: 12, marginTop: 6 }}>{downloadError}</div>
+            <div style={{ color: "var(--danger)", fontSize: 12, marginTop: 6 }}>
+              {downloadError}
+            </div>
           )}
           <div className="meta" style={{ marginTop: 6 }}>
-            If VLC is your system's default app for .m3u files, double-clicking the downloaded
-            file opens it straight in VLC — no menu navigation needed.
+            If VLC is your system's default app for .m3u files, double-clicking the downloaded file
+            opens it straight in VLC — no menu navigation needed.
           </div>
         </div>
 
@@ -107,11 +130,22 @@ export default function ExportModal({ playlistId, playlistName, m3uUrl, epgUrl, 
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Channels DVR</div>
           {hasDvrUrl ? (
             <div style={{ marginBottom: 16 }}>
-              <button className="primary" style={{ marginBottom: 8 }} disabled={pushing} onClick={handlePushToDvr}>
+              <button
+                className="primary"
+                style={{ marginBottom: 8 }}
+                disabled={pushing}
+                onClick={handlePushToDvr}
+              >
                 {pushing ? "Pushing…" : "Push to Channels DVR"}
               </button>
               {pushResult && (
-                <div style={{ fontSize: 13, marginTop: 6, color: pushResult.ok ? "var(--success)" : "var(--danger)" }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    marginTop: 6,
+                    color: pushResult.ok ? "var(--success)" : "var(--danger)",
+                  }}
+                >
                   {pushResult.message}
                 </div>
               )}
@@ -122,7 +156,15 @@ export default function ExportModal({ playlistId, playlistName, m3uUrl, epgUrl, 
             </div>
           ) : (
             <>
-              <ol style={{ fontSize: 13, color: "var(--text-dim)", paddingLeft: 18, margin: 0, marginBottom: 16 }}>
+              <ol
+                style={{
+                  fontSize: 13,
+                  color: "var(--text-dim)",
+                  paddingLeft: 18,
+                  margin: 0,
+                  marginBottom: 16,
+                }}
+              >
                 <li>Open the Channels DVR Server web admin</li>
                 <li>Go to Settings → Sources → Add Source</li>
                 <li>Choose Custom Channel (M3U)</li>
@@ -131,14 +173,22 @@ export default function ExportModal({ playlistId, playlistName, m3uUrl, epgUrl, 
               <div className="meta" style={{ marginBottom: 16 }}>
                 The EPG guide URL is embedded in the M3U itself (as an{" "}
                 <code style={{ fontSize: 11 }}>x-tvg-url</code> tag), so Channels DVR should pick up
-                program data automatically — you shouldn't need to add it as a separate source.
-                Set your Channels DVR URL in Settings to enable one-click push.
+                program data automatically — you shouldn't need to add it as a separate source. Set
+                your Channels DVR URL in Settings to enable one-click push.
               </div>
             </>
           )}
 
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Import into VLC</div>
-          <ol style={{ fontSize: 13, color: "var(--text-dim)", paddingLeft: 18, margin: 0, marginBottom: 12 }}>
+          <ol
+            style={{
+              fontSize: 13,
+              color: "var(--text-dim)",
+              paddingLeft: 18,
+              margin: 0,
+              marginBottom: 12,
+            }}
+          >
             <li>Open VLC</li>
             <li>Media → Open Network Stream (Ctrl/Cmd + N)</li>
             <li>Paste the M3U playlist URL above</li>
@@ -148,8 +198,8 @@ export default function ExportModal({ playlistId, playlistName, m3uUrl, epgUrl, 
           <CopyRow label="Or run directly from a terminal" value={vlcCommand} monospace />
 
           <div className="meta">
-            VLC plays the stream but doesn't use the EPG guide URL — that's a Channels DVR
-            (or similar DVR software) feature for program listings, not a video player one.
+            VLC plays the stream but doesn't use the EPG guide URL — that's a Channels DVR (or
+            similar DVR software) feature for program listings, not a video player one.
           </div>
         </div>
 

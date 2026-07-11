@@ -42,19 +42,25 @@ export default function App() {
       <header className="topbar">
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <h1>📺 IPTV Catalog</h1>
-          <NavLink to="/notifications" className={({ isActive }) => (isActive ? "active" : "")} style={{ position: "relative", padding: "4px 6px", fontSize: 16, lineHeight: 1 }}>
+          <NavLink
+            to="/notifications"
+            className={({ isActive }) => (isActive ? "active" : "")}
+            style={{ position: "relative", padding: "4px 6px", fontSize: 16, lineHeight: 1 }}
+          >
             🔔
             {unreadCount > 0 && (
-              <span style={{
-                position: "absolute",
-                top: 2,
-                right: 2,
-                width: 8,
-                height: 8,
-                borderRadius: "50%",
-                background: "var(--danger)",
-                display: "block",
-              }} />
+              <span
+                style={{
+                  position: "absolute",
+                  top: 2,
+                  right: 2,
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: "var(--danger)",
+                  display: "block",
+                }}
+              />
             )}
           </NavLink>
         </div>

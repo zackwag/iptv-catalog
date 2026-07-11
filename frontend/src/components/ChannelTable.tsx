@@ -28,7 +28,18 @@ const cellLink: React.CSSProperties = {
   color: "var(--link)",
 };
 
-export default function ChannelTable({ channels, selectedIds, selectedChannels, playlistMemberIds, filters, onToggle, onToggleAll, onRowClick, onFilterChange, onBlock }: Props) {
+export default function ChannelTable({
+  channels,
+  selectedIds,
+  selectedChannels,
+  playlistMemberIds,
+  filters,
+  onToggle,
+  onToggleAll,
+  onRowClick,
+  onFilterChange,
+  onBlock,
+}: Props) {
   const pinnedChannels = selectedChannels
     ? Array.from(selectedChannels.values()).filter((c) => !channels.some((p) => p.id === c.id))
     : [];
@@ -66,27 +77,46 @@ export default function ChannelTable({ channels, selectedIds, selectedChannels, 
               }}
             />
           ) : null}
-          <span
-            className="channel-logo-fallback"
-            style={{ display: ch.logo ? "none" : "flex" }}
-          >
+          <span className="channel-logo-fallback" style={{ display: ch.logo ? "none" : "flex" }}>
             {initials(ch.name)}
           </span>
         </td>
         <td>
           <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-            <button className="icon-link" style={{ padding: 0, fontSize: 13 }} onClick={(e) => { e.stopPropagation(); onRowClick(ch); }}>{ch.name}</button>
+            <button
+              className="icon-link"
+              style={{ padding: 0, fontSize: 13 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onRowClick(ch);
+              }}
+            >
+              {ch.name}
+            </button>
             {playlistMemberIds?.has(ch.id) && (
-              <span title="In a playlist" style={{ fontSize: 11, color: "var(--success)", flexShrink: 0 }}>★</span>
+              <span
+                title="In a playlist"
+                style={{ fontSize: 11, color: "var(--success)", flexShrink: 0 }}
+              >
+                ★
+              </span>
             )}
             {ch.isNsfw === 1 && (
-              <span className="badge" style={{ background: "#3d1a1a", color: "#f16c6c", fontSize: 10, flexShrink: 0 }}>NSFW</span>
+              <span
+                className="badge"
+                style={{ background: "#3d1a1a", color: "#f16c6c", fontSize: 10, flexShrink: 0 }}
+              >
+                NSFW
+              </span>
             )}
             <button
               className="danger-link"
               style={{ padding: 0, fontSize: 11, opacity: 0.5, flexShrink: 0 }}
               title="Block this channel"
-              onClick={(e) => { e.stopPropagation(); onBlock(ch); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onBlock(ch);
+              }}
             >
               Block
             </button>
@@ -114,7 +144,9 @@ export default function ChannelTable({ channels, selectedIds, selectedChannels, 
               {categories.map((cat) => (
                 <span
                   key={cat}
-                  className={filters.category === cat ? "badge category" : "badge category cell-link-plain"}
+                  className={
+                    filters.category === cat ? "badge category" : "badge category cell-link-plain"
+                  }
                   onClick={() =>
                     filters.category !== cat ? onFilterChange({ category: cat }) : undefined
                   }
@@ -179,7 +211,16 @@ export default function ChannelTable({ channels, selectedIds, selectedChannels, 
           {pinnedChannels.map((ch) => renderRow(ch, true))}
           {pinnedChannels.length > 0 && channels.length > 0 && (
             <tr>
-              <td colSpan={7} style={{ padding: "4px 12px", fontSize: 11, color: "var(--text-dim)", background: "var(--bg)", borderBottom: "1px solid var(--border)" }}>
+              <td
+                colSpan={7}
+                style={{
+                  padding: "4px 12px",
+                  fontSize: 11,
+                  color: "var(--text-dim)",
+                  background: "var(--bg)",
+                  borderBottom: "1px solid var(--border)",
+                }}
+              >
                 — current page —
               </td>
             </tr>

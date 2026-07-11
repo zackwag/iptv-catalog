@@ -11,8 +11,8 @@ const dbPath = path.join(DATA_DIR, "catalog.db");
 export const db = new Database(dbPath);
 
 db.pragma("journal_mode = WAL");
-db.pragma("cache_size = -8000");   // 8 MB page cache
-db.pragma("temp_store = MEMORY");  // temp tables/indexes in memory
+db.pragma("cache_size = -8000"); // 8 MB page cache
+db.pragma("temp_store = MEMORY"); // temp tables/indexes in memory
 db.pragma("mmap_size = 134217728"); // 128 MB memory-mapped I/O
 
 db.exec(`
@@ -125,7 +125,9 @@ if (!existingColumnNames.has("channelNumberStart")) {
 }
 
 // --- migration: add failure-streak tracking to notifications ---
-const notificationColumns = db.prepare("PRAGMA table_info(notifications)").all() as { name: string }[];
+const notificationColumns = db.prepare("PRAGMA table_info(notifications)").all() as {
+  name: string;
+}[];
 const existingNotificationColumns = new Set(notificationColumns.map((c) => c.name));
 
 if (!existingNotificationColumns.has("failureCount")) {
@@ -142,8 +144,7 @@ if (!existingNotificationColumns.has("kind")) {
 
 export function getMeta(key: string): string | null {
   const row = db.prepare("SELECT value FROM meta WHERE key = ?").get(key) as
-    | { value: string }
-    | undefined;
+    { value: string } | undefined;
   return row ? row.value : null;
 }
 

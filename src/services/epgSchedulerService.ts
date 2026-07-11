@@ -29,7 +29,8 @@ async function runCatalogRefresh(): Promise<void> {
     const result = await refreshCatalog();
     log.info(`refreshed ${result.channelCount} channels`);
     const purged = purgeBlocklistedFromPlaylists();
-    if (purged > 0) log.info(`purged ${purged} newly-blocked channel(s) from playlists after refresh`);
+    if (purged > 0)
+      log.info(`purged ${purged} newly-blocked channel(s) from playlists after refresh`);
     regenerateEpgChannelsFile();
   } catch (err) {
     log.error("scheduled catalog refresh failed", { error: (err as Error).message });

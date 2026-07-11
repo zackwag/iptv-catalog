@@ -55,7 +55,9 @@ export default function PlaylistsPage() {
 
   useEffect(() => {
     load();
-    fetchSettings().then(setAppSettings).catch(() => {});
+    fetchSettings()
+      .then(setAppSettings)
+      .catch(() => {});
   }, []);
 
   async function handleDelete(id: string, name: string) {
@@ -238,7 +240,11 @@ export default function PlaylistsPage() {
                       }}
                       style={{ fontSize: 15, fontWeight: 600, flex: 1 }}
                     />
-                    <button className="secondary" disabled={savingName} onClick={() => handleSaveName(p.id)}>
+                    <button
+                      className="secondary"
+                      disabled={savingName}
+                      onClick={() => handleSaveName(p.id)}
+                    >
                       {savingName ? "Saving…" : "Save"}
                     </button>
                     <button className="secondary" disabled={savingName} onClick={cancelRename}>
@@ -261,20 +267,40 @@ export default function PlaylistsPage() {
               </div>
               <div className="playlist-actions">
                 {editingNameId !== p.id && (
-                  <button className="icon-link" disabled={busyId === p.id} onClick={() => startRename(p)}>
+                  <button
+                    className="icon-link"
+                    disabled={busyId === p.id}
+                    onClick={() => startRename(p)}
+                  >
                     Rename
                   </button>
                 )}
-                <button className="icon-link" disabled={busyId === p.id} onClick={() => setExportingPlaylist(p)}>
+                <button
+                  className="icon-link"
+                  disabled={busyId === p.id}
+                  onClick={() => setExportingPlaylist(p)}
+                >
                   Export
                 </button>
-                <button className="icon-link" disabled={busyId === p.id} onClick={() => handleDuplicate(p.id)}>
+                <button
+                  className="icon-link"
+                  disabled={busyId === p.id}
+                  onClick={() => handleDuplicate(p.id)}
+                >
                   Duplicate
                 </button>
-                <button className="icon-link" disabled={busyId === p.id} onClick={() => navigate(`/playlists/${p.id}/edit`)}>
+                <button
+                  className="icon-link"
+                  disabled={busyId === p.id}
+                  onClick={() => navigate(`/playlists/${p.id}/edit`)}
+                >
                   Edit channels
                 </button>
-                <button className="danger-link" disabled={busyId === p.id} onClick={() => handleDelete(p.id, p.name)}>
+                <button
+                  className="danger-link"
+                  disabled={busyId === p.id}
+                  onClick={() => handleDelete(p.id, p.name)}
+                >
                   Delete
                 </button>
               </div>
@@ -287,13 +313,24 @@ export default function PlaylistsPage() {
                   type="number"
                   min={1}
                   value={intervalDrafts[p.id] ?? ""}
-                  onChange={(e) => setIntervalDrafts((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                  style={{ width: 60, background: "var(--bg)", border: "1px solid var(--border)", color: "var(--text)", borderRadius: 6, padding: "6px 8px" }}
+                  onChange={(e) =>
+                    setIntervalDrafts((prev) => ({ ...prev, [p.id]: e.target.value }))
+                  }
+                  style={{
+                    width: 60,
+                    background: "var(--bg)",
+                    border: "1px solid var(--border)",
+                    color: "var(--text)",
+                    borderRadius: 6,
+                    padding: "6px 8px",
+                  }}
                 />
                 <span className="meta">hours</span>
                 <button
                   className="secondary"
-                  disabled={busyId === p.id || intervalDrafts[p.id] === String(p.checkIntervalHours)}
+                  disabled={
+                    busyId === p.id || intervalDrafts[p.id] === String(p.checkIntervalHours)
+                  }
                   onClick={() => handleSaveInterval(p.id)}
                 >
                   Save
@@ -303,32 +340,58 @@ export default function PlaylistsPage() {
                   Last tested:{" "}
                   {p.lastTestedAt ? new Date(p.lastTestedAt).toLocaleString() : "never"}
                 </span>
-                <button className="secondary" disabled={busyId === p.id} onClick={() => handleTestNow(p.id)}>
+                <button
+                  className="secondary"
+                  disabled={busyId === p.id}
+                  onClick={() => handleTestNow(p.id)}
+                >
                   Test now
                 </button>
               </div>
               {testMessages[p.id] && (
-                <div style={{ marginTop: 8, fontSize: 12, color: "var(--text-dim)" }}>{testMessages[p.id]}</div>
+                <div style={{ marginTop: 8, fontSize: 12, color: "var(--text-dim)" }}>
+                  {testMessages[p.id]}
+                </div>
               )}
 
-              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginTop: 10 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  flexWrap: "wrap",
+                  marginTop: 10,
+                }}
+              >
                 <span className="meta">Channel numbers start at</span>
                 <input
                   type="number"
                   min={1}
                   value={numberStartDrafts[p.id] ?? ""}
-                  onChange={(e) => setNumberStartDrafts((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                  style={{ width: 70, background: "var(--bg)", border: "1px solid var(--border)", color: "var(--text)", borderRadius: 6, padding: "6px 8px" }}
+                  onChange={(e) =>
+                    setNumberStartDrafts((prev) => ({ ...prev, [p.id]: e.target.value }))
+                  }
+                  style={{
+                    width: 70,
+                    background: "var(--bg)",
+                    border: "1px solid var(--border)",
+                    color: "var(--text)",
+                    borderRadius: 6,
+                    padding: "6px 8px",
+                  }}
                 />
                 <button
                   className="secondary"
-                  disabled={busyId === p.id || numberStartDrafts[p.id] === String(p.channelNumberStart)}
+                  disabled={
+                    busyId === p.id || numberStartDrafts[p.id] === String(p.channelNumberStart)
+                  }
                   onClick={() => handleSaveNumberStart(p.id)}
                 >
                   Save
                 </button>
                 <span className="meta" style={{ fontSize: 11 }}>
-                  Change this if multiple playlists are added to Channels DVR so their numbers don't overlap.
+                  Change this if multiple playlists are added to Channels DVR so their numbers don't
+                  overlap.
                 </span>
               </div>
             </div>
@@ -342,7 +405,7 @@ export default function PlaylistsPage() {
           playlistName={exportingPlaylist.name}
           m3uUrl={exportingPlaylist.m3uUrl}
           epgUrl={exportingPlaylist.epgUrl}
-          hasDvrUrl={!!(appSettings?.channelsDvrUrl)}
+          hasDvrUrl={!!appSettings?.channelsDvrUrl}
           onClose={() => setExportingPlaylist(null)}
         />
       )}

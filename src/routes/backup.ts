@@ -46,7 +46,11 @@ function isValidPlaylistDefinition(value: unknown): value is PlaylistDefinition 
 
 // GET /backup/playlists — lightweight list for the export-picker UI (id, name, channel count)
 backupRouter.get("/backup/playlists", (_req, res) => {
-  const playlists = listPlaylists().map((p) => ({ id: p.id, name: p.name, channelCount: p.channelCount }));
+  const playlists = listPlaylists().map((p) => ({
+    id: p.id,
+    name: p.name,
+    channelCount: p.channelCount,
+  }));
   res.json({ playlists });
 });
 
@@ -86,7 +90,9 @@ backupRouter.post("/backup/export", (req, res) => {
     bundle.settings = exportable;
   }
 
-  log.info(`exported backup bundle: ${playlists.length} playlist(s), settings=${!!includeSettings}`);
+  log.info(
+    `exported backup bundle: ${playlists.length} playlist(s), settings=${!!includeSettings}`
+  );
 
   res.setHeader("Content-Disposition", `attachment; filename="iptv-catalog-backup.json"`);
   res.json(bundle);

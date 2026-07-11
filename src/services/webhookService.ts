@@ -39,7 +39,9 @@ export async function sendWebhook(payload: WebhookPayload): Promise<void> {
         channelName: payload.channelName,
       });
     } else {
-      log.debug(`webhook delivered for event "${payload.event}"`, { channelName: payload.channelName });
+      log.debug(`webhook delivered for event "${payload.event}"`, {
+        channelName: payload.channelName,
+      });
     }
   } catch (err) {
     const isAbort = (err as Error).name === "AbortError";

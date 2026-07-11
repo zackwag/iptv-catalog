@@ -32,10 +32,14 @@ export function startFeedTestScheduler(): void {
       try {
         await testPlaylist(playlist.id);
       } catch (err) {
-        log.error(`feed test failed for playlist ${playlist.id}`, { error: (err as Error).message });
+        log.error(`feed test failed for playlist ${playlist.id}`, {
+          error: (err as Error).message,
+        });
       }
     }
   });
 
-  log.info(`feed test scheduler ticking on "${TICK_CRON}" (per-playlist interval set by checkIntervalHours)`);
+  log.info(
+    `feed test scheduler ticking on "${TICK_CRON}" (per-playlist interval set by checkIntervalHours)`
+  );
 }

@@ -22,7 +22,7 @@ function resolveConfiguredLevel(): LogLevel {
     return raw;
   }
   // Don't silently swallow a typo'd env var — fall back to "info" but say so.
-  // eslint-disable-next-line no-console
+   
   console.warn(
     `[logger] LOG_LEVEL="${raw}" is not one of error|warn|info|debug, defaulting to "info"`
   );
@@ -39,7 +39,12 @@ function timestamp(): string {
   return new Date().toISOString();
 }
 
-function write(level: LogLevel, scope: string, message: string, meta?: Record<string, unknown>): void {
+function write(
+  level: LogLevel,
+  scope: string,
+  message: string,
+  meta?: Record<string, unknown>
+): void {
   if (!shouldLog(level)) return;
 
   const line = `${timestamp()} [${level.toUpperCase()}] [${scope}] ${message}`;
@@ -55,10 +60,12 @@ function write(level: LogLevel, scope: string, message: string, meta?: Record<st
 /** Creates a logger scoped to a module/component name, e.g. logger("catalogService"). */
 export function createLogger(scope: string) {
   return {
-    error: (message: string, meta?: Record<string, unknown>) => write("error", scope, message, meta),
+    error: (message: string, meta?: Record<string, unknown>) =>
+      write("error", scope, message, meta),
     warn: (message: string, meta?: Record<string, unknown>) => write("warn", scope, message, meta),
     info: (message: string, meta?: Record<string, unknown>) => write("info", scope, message, meta),
-    debug: (message: string, meta?: Record<string, unknown>) => write("debug", scope, message, meta),
+    debug: (message: string, meta?: Record<string, unknown>) =>
+      write("debug", scope, message, meta),
   };
 }
 

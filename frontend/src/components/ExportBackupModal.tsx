@@ -64,7 +64,11 @@ export default function ExportBackupModal({ onClose }: Props) {
 
   return (
     <div className="iptv-dialog-overlay" onClick={onClose}>
-      <div className="modal" style={{ width: "min(420px, 92vw)" }} onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal"
+        style={{ width: "min(420px, 92vw)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <h3>Export backup</h3>
 
         {loading ? (
@@ -85,9 +89,19 @@ export default function ExportBackupModal({ onClose }: Props) {
               {playlists.map((p) => (
                 <label
                   key={p.id}
-                  style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", cursor: "pointer" }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "6px 0",
+                    cursor: "pointer",
+                  }}
                 >
-                  <input type="checkbox" checked={selectedIds.has(p.id)} onChange={() => toggle(p.id)} />
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(p.id)}
+                    onChange={() => toggle(p.id)}
+                  />
                   <span style={{ flex: 1 }}>{p.name}</span>
                   <span className="meta" style={{ fontSize: 11 }}>
                     {p.channelCount} ch
@@ -107,7 +121,9 @@ export default function ExportBackupModal({ onClose }: Props) {
           Include app settings (schedule, auto-remove, webhook, EPG threshold, theme)
         </label>
 
-        {error && <div style={{ color: "var(--danger)", fontSize: 13, marginBottom: 10 }}>{error}</div>}
+        {error && (
+          <div style={{ color: "var(--danger)", fontSize: 13, marginBottom: 10 }}>{error}</div>
+        )}
 
         <div className="actions">
           <button className="secondary" onClick={onClose}>
