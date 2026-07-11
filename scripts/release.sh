@@ -4,6 +4,39 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
 
+# --- Check for uncommitted changes ---
+UNSTAGED=$(git diff --name-only)
+UNTRACKED=$(git ls-files --others --exclude-standard)
+STAGED=$(git diff --cached --name-only)
+
+if [[ -n "$UNSTAGED" || -n "$UNTRACKED" ]]; then
+  echo "Uncommitted changes detected:"
+  git status --short
+  echo ""
+  read -rp "Stage and commit these files before releasing? [Y/n] " stage_confirm
+  stage_confirm="${stage_confirm:-Y}"
+  if [[ "$stage_confirm" =~ ^[Yy]$ ]]; then
+    git add -A
+    read -rp "Commit message: " pre_message
+    git commit -m "$pre_message"
+    echo ""
+  else
+    echo "Proceeding without committing unstaged changes."
+    echo ""
+  fi
+elif [[ -n "$STAGED" ]]; then
+  echo "Staged but uncommitted changes detected:"
+  git status --short
+  echo ""
+  read -rp "Commit staged changes before releasing? [Y/n] " stage_confirm
+  stage_confirm="${stage_confirm:-Y}"
+  if [[ "$stage_confirm" =~ ^[Yy]$ ]]; then
+    read -rp "Commit message: " pre_message
+    git commit -m "$pre_message"
+    echo ""
+  fi
+fi
+
 # --- Read current version from package.json ---
 CURRENT=$(node -p "require('./package.json').version")
 MAJOR=$(echo "$CURRENT" | cut -d. -f1)

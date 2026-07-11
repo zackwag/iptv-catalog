@@ -119,10 +119,7 @@ export async function refreshCatalog(): Promise<{ channelCount: number }> {
   insertMany(rawChannels);
 
   // Rebuild FTS index after full catalog refresh
-  db.exec(`
-    DELETE FROM channels_fts;
-    INSERT INTO channels_fts(rowid, name) SELECT rowid, name FROM channels;
-  `);
+  db.exec(`INSERT INTO channels_fts(channels_fts) VALUES('rebuild')`);
 
   setMeta("catalogRefreshedAt", now);
   log.debug(`upserted ${rawChannels.length} channels into local db`);

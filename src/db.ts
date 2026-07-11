@@ -104,7 +104,7 @@ db.exec(`
 const ftsCount = (db.prepare("SELECT COUNT(*) AS n FROM channels_fts").get() as { n: number }).n;
 const channelCount = (db.prepare("SELECT COUNT(*) AS n FROM channels").get() as { n: number }).n;
 if (ftsCount === 0 && channelCount > 0) {
-  db.exec("INSERT INTO channels_fts(rowid, name) SELECT rowid, name FROM channels");
+  db.exec(`INSERT INTO channels_fts(channels_fts) VALUES('rebuild')`);
 }
 
 // --- migration: add feed-testing columns to playlists for dbs created before this feature ---
