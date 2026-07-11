@@ -37,6 +37,7 @@ export default function CatalogPage() {
   const [countries, setCountries] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [selectedChannels, setSelectedChannels] = useState<Map<string, Channel>>(new Map());
   const [pageSize, setPageSize] = useState(() => {
     const saved = localStorage.getItem("catalogPageSize");
     const n = saved ? Number(saved) : NaN;
@@ -75,12 +76,16 @@ export default function CatalogPage() {
   useEffect(() => {
     if (!editingPlaylistId) {
       setSelectedIds(new Set());
+      setSelectedChannels(new Map());
       setLoadingEditTarget(false);
       return;
     }
     setLoadingEditTarget(true);
     fetchPlaylist(editingPlaylistId)
-      .then((p) => setSelectedIds(new Set(p.channels.map((c) => c.id))))
+      .then((p) => {
+        setSelectedIds(new Set(p.channels.map((c) => c.id)));
+        setSelectedChannels(new Map(p.channels.map((c) => [c.id, c])));
+      })
       .catch((e) => setError(e.message))
       .finally(() => setLoadingEditTarget(false));
   }, [editingPlaylistId]);
@@ -113,8 +118,14 @@ export default function CatalogPage() {
 
   function toggle(id: string) {
     const next = new Set(selectedIds);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
+    if (next.has(id)) {
+      next.delete(id);
+      setSelectedChannels((prev) => { const m = new Map(prev); m.delete(id); return m; });
+    } else {
+      next.add(id);
+      const ch = channels.find((c) => c.id === id);
+      if (ch) setSelectedChannels((prev) => new Map(prev).set(id, ch));
+    }
     setSelectedIds(next);
   }
 
@@ -123,8 +134,14 @@ export default function CatalogPage() {
     const next = new Set(selectedIds);
     if (allSelected) {
       ids.forEach((id) => next.delete(id));
+      setSelectedChannels((prev) => { const m = new Map(prev); ids.forEach((id) => m.delete(id)); return m; });
     } else {
       ids.forEach((id) => next.add(id));
+      setSelectedChannels((prev) => {
+        const m = new Map(prev);
+        channels.forEach((ch) => { if (ids.includes(ch.id)) m.set(ch.id, ch); });
+        return m;
+      });
     }
     setSelectedIds(next);
   }
@@ -148,6 +165,7 @@ export default function CatalogPage() {
       await blockChannel(channel.id);
       setChannels((prev) => prev.filter((c) => c.id !== channel.id));
       setSelectedIds((prev) => { const next = new Set(prev); next.delete(channel.id); return next; });
+      setSelectedChannels((prev) => { const m = new Map(prev); m.delete(channel.id); return m; });
       if (detailChannel?.id === channel.id) setDetailChannel(null);
       setTotal((prev) => prev - 1);
       setToast(`"${channel.name}" blocked.`);
@@ -169,6 +187,7 @@ export default function CatalogPage() {
     }
     setChannels((prev) => prev.filter((c) => !ids.includes(c.id)));
     setSelectedIds(new Set());
+    setSelectedChannels(new Map());
     setTotal((prev) => prev - blocked);
     setToast(`${blocked} channel${blocked === 1 ? "" : "s"} blocked.`);
   }
@@ -216,6 +235,7 @@ export default function CatalogPage() {
           <ChannelTable
             channels={channels}
             selectedIds={selectedIds}
+            selectedChannels={selectedChannels}
             filters={filters}
             onToggle={toggle}
             onToggleAll={toggleAll}
@@ -271,7 +291,7 @@ export default function CatalogPage() {
         <div style={{ display: "flex", gap: 8 }}>
           {selectedIds.size > 0 && (
             <>
-              <button className="secondary" onClick={() => setSelectedIds(new Set())}>
+              <button className="secondary" onClick={() => { setSelectedIds(new Set()); setSelectedChannels(new Map()); }}>
                 Clear
               </button>
               <button
