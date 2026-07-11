@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.5] - 2026-07-11
+
+- feat: pin selected channels to top of table across pages
+- fix: Updating release script
+
+
 ## [1.0.4] - 2026-07-11
 
 - fix: use FTS5 rebuild command to prevent index corruption
