@@ -87,12 +87,6 @@ export async function refreshCatalog(): Promise<{ channelCount: number }> {
     ON CONFLICT(channelId, url) DO UPDATE SET quality = excluded.quality, sortOrder = excluded.sortOrder
   `);
 
-  const upsertFts = db.prepare(`
-    INSERT INTO channels_fts(rowid, name)
-    SELECT rowid, name FROM channels WHERE id = ?
-    ON CONFLICT DO UPDATE SET name = excluded.name
-  `);
-
   const insertMany = db.transaction((channels: RawChannel[]) => {
     for (const c of channels) {
       const stream = streamByChannel.get(c.id);
@@ -113,8 +107,6 @@ export async function refreshCatalog(): Promise<{ channelCount: number }> {
         epgLang: guide ? guide.lang : null,
         updatedAt: now,
       });
-
-      upsertFts.run(c.id);
 
       // Store all fallback streams
       const streams = allStreamsByChannel.get(c.id) ?? [];
