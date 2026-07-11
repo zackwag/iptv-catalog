@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.8] - 2026-07-11
+
+- feat: channel number assignment toggle, ESLint/Prettier/Husky setup, fix CI Node version and lock files
+- feat: Adding Linting
+
+
 ## [1.0.7] - 2026-07-11
 
 - feat: playlist membership indicator and quick-add from channel detail
