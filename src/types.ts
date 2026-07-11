@@ -34,6 +34,7 @@ export interface Playlist {
   checkIntervalHours: number;
   lastTestedAt: string | null;
   channelNumberStart: number;
+  autoAssignNumbers: number; // 0/1 (sqlite boolean)
   channelCount: number;
 }
 

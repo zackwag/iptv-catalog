@@ -7,18 +7,18 @@ import { Channel } from "../types";
  * @param flaggedChannelIds channel ids with an active (undismissed) failure
  *   notification — their display name gets a warning prefix so it's visible
  *   right in the Channels DVR guide, without needing a separate slate stream.
- * @param channelNumberStart base number for the channel-number tag, so
- *   multiple playlists added as separate Channels DVR sources don't collide
- *   on the same numbers. Numbers are assigned sequentially in the playlist's
- *   stored order, so they stay stable across regenerations rather than
- *   whatever Channels DVR would auto-assign on its own.
+ * @param channelNumberStart base number for the channel-number tag. Has no
+ *   effect when autoAssignNumbers is false.
+ * @param autoAssignNumbers when false, channel-number tags are omitted and
+ *   Channels DVR assigns numbers itself.
  */
 export function generateM3U(
   channels: Channel[],
   baseUrl: string,
   playlistId: string,
   flaggedChannelIds: Set<string> = new Set(),
-  channelNumberStart: number = 1
+  channelNumberStart: number = 1,
+  autoAssignNumbers: boolean = true
 ): string {
   const lines: string[] = ["#EXTM3U"];
 
@@ -34,7 +34,7 @@ export function generateM3U(
     const group = (ch.categories || "").split(",")[0] || "General";
     const attrs = [
       `tvg-id="${escapeAttr(ch.id)}"`,
-      `channel-number="${channelNumber}"`,
+      autoAssignNumbers ? `channel-number="${channelNumber}"` : null,
       ch.logo ? `tvg-logo="${escapeAttr(ch.logo)}"` : null,
       ch.country ? `tvg-country="${escapeAttr(ch.country)}"` : null,
       `group-title="${escapeAttr(group)}"`,

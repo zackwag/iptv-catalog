@@ -20,6 +20,7 @@ interface PlaylistDefinition {
   channelIds: string[];
   checkIntervalHours: number;
   channelNumberStart: number;
+  autoAssignNumbers?: number;
 }
 
 interface BackupBundle {
@@ -76,6 +77,7 @@ backupRouter.post("/backup/export", (req, res) => {
       channelIds: playlist.channels.map((c) => c.id),
       checkIntervalHours: playlist.checkIntervalHours,
       channelNumberStart: playlist.channelNumberStart,
+      autoAssignNumbers: playlist.autoAssignNumbers,
     });
   }
 
@@ -142,7 +144,13 @@ backupRouter.post("/backup/import", (req, res) => {
   try {
     let playlistsImported = 0;
     for (const def of playlistDefs) {
-      createPlaylist(def.name, def.channelIds, def.checkIntervalHours, def.channelNumberStart);
+      createPlaylist(
+        def.name,
+        def.channelIds,
+        def.checkIntervalHours,
+        def.channelNumberStart,
+        def.autoAssignNumbers
+      );
       playlistsImported++;
     }
     if (playlistsImported > 0) {

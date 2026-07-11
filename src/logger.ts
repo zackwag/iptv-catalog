@@ -22,7 +22,7 @@ function resolveConfiguredLevel(): LogLevel {
     return raw;
   }
   // Don't silently swallow a typo'd env var — fall back to "info" but say so.
-   
+
   console.warn(
     `[logger] LOG_LEVEL="${raw}" is not one of error|warn|info|debug, defaulting to "info"`
   );

@@ -31,7 +31,8 @@ publicPlaylistFilesRouter.get("/playlists/:id/playlist.m3u", (req, res) => {
     baseUrl,
     playlist.id,
     flaggedChannelIds,
-    playlist.channelNumberStart
+    playlist.channelNumberStart,
+    playlist.autoAssignNumbers !== 0
   );
 
   res.setHeader("Content-Type", "application/x-mpegurl; charset=utf-8");
