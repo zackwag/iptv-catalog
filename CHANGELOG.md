@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4] - 2026-07-11
+
+- fix: use FTS5 rebuild command to prevent index corruption
+- fix: use FTS5 rebuild command to prevent index corruption
+
+
+
 ## [1.0.3] - 2026-07-11
 
 - ci: build amd64 only to avoid QEMU OOM on arm64
