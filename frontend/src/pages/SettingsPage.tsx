@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchSettings, updateSettings, triggerCatalogRefresh, fetchCountries, fetchCategories, fetchBlockedChannels, unblockChannel, AppSettings, ThemeMode, BlockedChannel } from "../api";
 import { applyTheme, watchSystemTheme } from "../theme";
 import { describeCron } from "../cronFormat";
-import { countryName } from "../textFormat";
+import { countryName, countryFlag, titleCase } from "../textFormat";
 
 const PRESETS: { label: string; value: string }[] = [
   { label: "Every 6 hours", value: "0 */6 * * *" },
@@ -50,6 +50,8 @@ export default function SettingsPage() {
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [countryPickerVal, setCountryPickerVal] = useState("");
   const [categoryPickerVal, setCategoryPickerVal] = useState("");
+  const [countrySearch, setCountrySearch] = useState("");
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
   const [blockedChannels, setBlockedChannels] = useState<BlockedChannel[]>([]);
   const [blocklistPurgeMessage, setBlocklistPurgeMessage] = useState<string | null>(null);
   const [blockNsfw, setBlockNsfw] = useState(false);
@@ -500,37 +502,64 @@ export default function SettingsPage() {
         <div className="meta" style={{ marginBottom: 10 }}>
           Channels from blocked countries are hidden from Browse Channels.
         </div>
-        <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-          <select
-            value={countryPickerVal}
-            onChange={(e) => setCountryPickerVal(e.target.value)}
-            style={{ flex: 1 }}
-          >
-            <option value="">Add a country…</option>
-            {allCountries
-              .filter(c => !blockedCountries.includes(c.toLowerCase()))
-              .map(c => (
-                <option key={c} value={c}>{countryName(c)} ({c})</option>
-              ))}
-          </select>
-          <button
-            className="secondary"
-            disabled={!countryPickerVal}
-            onClick={() => {
-              if (countryPickerVal) {
-                saveBlockedCountries([...blockedCountries, countryPickerVal.toLowerCase()]);
-                setCountryPickerVal("");
-              }
-            }}
-          >
-            Add
-          </button>
+        <div style={{ position: "relative", marginBottom: 10 }}>
+          <div style={{ display: "flex", gap: 8 }}>
+            <input
+              type="text"
+              placeholder="Search countries…"
+              value={countrySearch}
+              onFocus={() => setShowCountryPicker(true)}
+              onChange={(e) => { setCountrySearch(e.target.value); setShowCountryPicker(true); }}
+              style={{ flex: 1, background: "var(--panel)", border: "1px solid var(--border)", color: "var(--text)", padding: "7px 10px", borderRadius: 6, fontSize: 13 }}
+            />
+            {showCountryPicker && (
+              <button className="secondary" onClick={() => { setShowCountryPicker(false); setCountrySearch(""); }}>
+                Done
+              </button>
+            )}
+          </div>
+          {showCountryPicker && (
+            <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, background: "var(--panel)", border: "1px solid var(--border)", borderRadius: 8, zIndex: 20, maxHeight: 260, overflowY: "auto" }}>
+              {allCountries
+                .filter(c => {
+                  const q = countrySearch.toLowerCase();
+                  return !q || c.toLowerCase().includes(q) || countryName(c).toLowerCase().includes(q);
+                })
+                .map(c => {
+                  const blocked = blockedCountries.includes(c.toLowerCase());
+                  return (
+                    <label key={c} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 12px", cursor: "pointer", background: blocked ? "rgba(79,156,249,0.06)" : undefined }}
+                      onMouseEnter={(e) => { if (!blocked) (e.currentTarget as HTMLElement).style.background = "var(--panel-hover)"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = blocked ? "rgba(79,156,249,0.06)" : ""; }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={blocked}
+                        onChange={() => {
+                          const next = blocked
+                            ? blockedCountries.filter(x => x !== c.toLowerCase())
+                            : [...blockedCountries, c.toLowerCase()];
+                          saveBlockedCountries(next);
+                        }}
+                      />
+                      <span style={{ fontSize: 13 }}>{countryFlag(c)} {countryName(c)}</span>
+                    </label>
+                  );
+                })}
+              {allCountries.filter(c => {
+                const q = countrySearch.toLowerCase();
+                return !q || c.toLowerCase().includes(q) || countryName(c).toLowerCase().includes(q);
+              }).length === 0 && (
+                <div style={{ padding: "10px 12px", fontSize: 13, color: "var(--text-dim)" }}>No countries match.</div>
+              )}
+            </div>
+          )}
         </div>
         {blockedCountries.length > 0 ? (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {blockedCountries.map(c => (
               <span key={c} className="badge muted" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                {c}
+                {countryFlag(c)} {countryName(c)}
                 <button
                   onClick={() => saveBlockedCountries(blockedCountries.filter(x => x !== c))}
                   style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", padding: 0, lineHeight: 1, fontSize: 13 }}
@@ -580,7 +609,7 @@ export default function SettingsPage() {
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {blockedCategories.map(c => (
               <span key={c} className="badge muted" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                {c}
+                {titleCase(c)}
                 <button
                   onClick={() => saveBlockedCategories(blockedCategories.filter(x => x !== c))}
                   style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", padding: 0, lineHeight: 1, fontSize: 13 }}
