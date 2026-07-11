@@ -219,7 +219,7 @@ playlistsRouter.post("/playlists/:id/push-to-dvr", async (req, res) => {
 
   const payload = JSON.stringify({
     name: playlist.name,
-    type: "m3u",
+    type: "HLS",
     source: "URL",
     url: m3uUrl,
     xmltv_url: epgUrl,
@@ -260,7 +260,7 @@ playlistsRouter.post("/playlists/:id/push-to-dvr", async (req, res) => {
       });
 
       dvReq.on("error", reject);
-      dvReq.setTimeout(10000, () => {
+      dvReq.setTimeout(30000, () => {
         dvReq.destroy();
         reject(new Error("Request to Channels DVR timed out"));
       });

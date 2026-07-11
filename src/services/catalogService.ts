@@ -87,6 +87,12 @@ export async function refreshCatalog(): Promise<{ channelCount: number }> {
     ON CONFLICT(channelId, url) DO UPDATE SET quality = excluded.quality, sortOrder = excluded.sortOrder
   `);
 
+  const upsertFts = db.prepare(`
+    INSERT INTO channels_fts(rowid, name)
+    SELECT rowid, name FROM channels WHERE id = ?
+    ON CONFLICT DO UPDATE SET name = excluded.name
+  `);
+
   const insertMany = db.transaction((channels: RawChannel[]) => {
     for (const c of channels) {
       const stream = streamByChannel.get(c.id);
@@ -108,6 +114,8 @@ export async function refreshCatalog(): Promise<{ channelCount: number }> {
         updatedAt: now,
       });
 
+      upsertFts.run(c.id);
+
       // Store all fallback streams
       const streams = allStreamsByChannel.get(c.id) ?? [];
       for (let i = 0; i < streams.length; i++) {
@@ -117,6 +125,13 @@ export async function refreshCatalog(): Promise<{ channelCount: number }> {
   });
 
   insertMany(rawChannels);
+
+  // Rebuild FTS index after full catalog refresh
+  db.exec(`
+    DELETE FROM channels_fts;
+    INSERT INTO channels_fts(rowid, name) SELECT rowid, name FROM channels;
+  `);
+
   setMeta("catalogRefreshedAt", now);
   log.debug(`upserted ${rawChannels.length} channels into local db`);
 
@@ -131,8 +146,8 @@ function buildWhereClause(filters: ChannelFilters): { where: string; params: Rec
   const params: Record<string, unknown> = {};
 
   if (filters.search) {
-    clauses.push("name LIKE @search");
-    params.search = `%${filters.search}%`;
+    clauses.push("rowid IN (SELECT rowid FROM channels_fts WHERE channels_fts MATCH @search)");
+    params.search = `${filters.search.replace(/[^a-zA-Z0-9 ]/g, " ")}*`;
   }
   if (filters.country) {
     clauses.push("country = @country");

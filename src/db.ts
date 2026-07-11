@@ -90,6 +90,23 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_channel_streams_channel ON channel_streams(channelId, sortOrder);
 `);
 
+// --- FTS5 virtual table for fast channel name search ---
+db.exec(`
+  CREATE VIRTUAL TABLE IF NOT EXISTS channels_fts USING fts5(
+    name,
+    content=channels,
+    content_rowid=rowid,
+    tokenize='unicode61'
+  );
+`);
+
+// Populate FTS if empty (first boot or after catalog wipe)
+const ftsCount = (db.prepare("SELECT COUNT(*) AS n FROM channels_fts").get() as { n: number }).n;
+const channelCount = (db.prepare("SELECT COUNT(*) AS n FROM channels").get() as { n: number }).n;
+if (ftsCount === 0 && channelCount > 0) {
+  db.exec("INSERT INTO channels_fts(rowid, name) SELECT rowid, name FROM channels");
+}
+
 // --- migration: add feed-testing columns to playlists for dbs created before this feature ---
 const playlistColumns = db.prepare("PRAGMA table_info(playlists)").all() as { name: string }[];
 const existingColumnNames = new Set(playlistColumns.map((c) => c.name));
