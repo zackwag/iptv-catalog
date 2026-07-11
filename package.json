@@ -1,6 +1,6 @@
 {
   "name": "iptv-catalog-api",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "TypeScript API for browsing the iptv-org catalog and exporting curated M3U/EPG playlists for Channels DVR",
   "main": "dist/index.js",
   "scripts": {
