@@ -73,14 +73,9 @@ NEW_VERSION=$(node -p "
 ")
 TAG="v${NEW_VERSION}"
 
-# Optional release message — default to the tag name
-read -rp "Release message [${TAG}]: " MESSAGE
-MESSAGE="${MESSAGE:-${TAG}}"
-
 echo ""
 echo "Preparing release:"
 echo "  Version : $CURRENT → $NEW_VERSION ($TAG)"
-echo "  Message : $MESSAGE"
 echo ""
 read -rp "Proceed? [Y/n] " confirm
 confirm="${confirm:-Y}"
@@ -98,8 +93,6 @@ LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
     git log "${LAST_TAG}..HEAD" --pretty=format:"- %s" --no-merges
     echo ""
   fi
-  echo "- $MESSAGE"
-  echo ""
   echo ""
 } > /tmp/changelog_entry.txt
 
@@ -129,7 +122,7 @@ echo "Bumped package.json to $NEW_VERSION"
 
 # --- Commit everything (package.json + CHANGELOG) then tag ---
 git add package.json "$CHANGELOG"
-git commit -m "$MESSAGE"
+git commit -m "chore: release $NEW_VERSION"
 git tag "$TAG"
 
 echo ""
