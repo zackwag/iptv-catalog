@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.9] - 2026-07-12
+
+- fix: prevent iOS Safari auto-zoom on input focus
+- fix: guard husky prepare script without external dependency
+- fix: skip husky in CI and Docker builds
+
+
 ## [1.0.8] - 2026-07-11
 
 - feat: channel number assignment toggle, ESLint/Prettier/Husky setup, fix CI Node version and lock files
