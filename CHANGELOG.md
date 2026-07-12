@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.10] - 2026-07-12
+
+- Update package-lock.json
+- fix: four bugs from code review
+
+
 ## [1.0.9] - 2026-07-12
 
 - fix: prevent iOS Safari auto-zoom on input focus
