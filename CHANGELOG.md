@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.11] - 2026-07-12
+
+- Update package-lock.json
+- feat: searchable multi-select for block categories (matches country block UX)
+
+
 ## [1.0.10] - 2026-07-12
 
 - Update package-lock.json
