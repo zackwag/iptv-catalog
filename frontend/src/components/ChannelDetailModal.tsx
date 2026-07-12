@@ -6,8 +6,7 @@ import {
   fetchChannelStreams,
   fetchChannelPlaylists,
   fetchPlaylists,
-  fetchPlaylist,
-  updatePlaylist,
+  addChannelToPlaylist,
 } from "../api";
 
 interface Props {
@@ -63,11 +62,7 @@ export default function ChannelDetailModal({
   async function handleAddToPlaylist(playlistId: string) {
     setAddingToPlaylist(true);
     try {
-      const full = await fetchPlaylist(playlistId);
-      const existingIds = full.channels.map((c) => c.id);
-      if (!existingIds.includes(channel.id)) {
-        await updatePlaylist(playlistId, { channelIds: [...existingIds, channel.id] });
-      }
+      await addChannelToPlaylist(playlistId, channel.id);
       fetchChannelPlaylists(channel.id)
         .then((r) => setPlaylists(r.playlists))
         .catch(() => {});

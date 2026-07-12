@@ -12,6 +12,7 @@ import { regenerateEpgChannelsFile } from "../services/epgSchedulerService";
 import { testPlaylist } from "../services/feedTesterService";
 import { loadSettings } from "../services/settingsService";
 import { createLogger } from "../logger";
+import { db } from "../db";
 
 const log = createLogger("playlistsRoute");
 
@@ -60,6 +61,13 @@ playlistsRouter.post("/playlists", (req, res) => {
   }
   if (channelNumberStart !== undefined && !isPositiveNumber(channelNumberStart)) {
     return res.status(400).json({ error: "channelNumberStart must be a positive number" });
+  }
+  if (
+    autoAssignNumbers !== undefined &&
+    typeof autoAssignNumbers !== "boolean" &&
+    typeof autoAssignNumbers !== "number"
+  ) {
+    return res.status(400).json({ error: "autoAssignNumbers must be a boolean" });
   }
 
   const playlist = createPlaylist(
@@ -122,6 +130,13 @@ playlistsRouter.patch("/playlists/:id", (req, res) => {
   if (channelNumberStart !== undefined && !isPositiveNumber(channelNumberStart)) {
     return res.status(400).json({ error: "channelNumberStart must be a positive number" });
   }
+  if (
+    autoAssignNumbers !== undefined &&
+    typeof autoAssignNumbers !== "boolean" &&
+    typeof autoAssignNumbers !== "number"
+  ) {
+    return res.status(400).json({ error: "autoAssignNumbers must be a boolean" });
+  }
 
   try {
     const updated = updatePlaylist(req.params.id, {
@@ -141,6 +156,25 @@ playlistsRouter.patch("/playlists/:id", (req, res) => {
   } catch (err) {
     res.status(400).json({ error: (err as Error).message });
   }
+});
+
+// POST /playlists/:id/channels/:channelId — atomically add a single channel
+// (idempotent: no-op if already present, avoids the fetch-then-write TOCTOU)
+playlistsRouter.post("/playlists/:id/channels/:channelId", (req, res) => {
+  const existing = db.prepare("SELECT id FROM playlists WHERE id = ?").get(req.params.id);
+  if (!existing) return res.status(404).json({ error: "playlist not found" });
+
+  const maxOrder = (
+    db
+      .prepare("SELECT MAX(sortOrder) AS m FROM playlist_channels WHERE playlistId = ?")
+      .get(req.params.id) as { m: number | null }
+  ).m;
+  db.prepare(
+    "INSERT OR IGNORE INTO playlist_channels (playlistId, channelId, sortOrder) VALUES (?, ?, ?)"
+  ).run(req.params.id, req.params.channelId, (maxOrder ?? -1) + 1);
+
+  regenerateEpgChannelsFile();
+  res.json({ ok: true });
 });
 
 // DELETE /playlists/:id
@@ -198,6 +232,13 @@ playlistsRouter.post("/playlists/import", (req, res) => {
   }
   if (channelNumberStart !== undefined && !isPositiveNumber(channelNumberStart)) {
     return res.status(400).json({ error: "channelNumberStart must be a positive number" });
+  }
+  if (
+    autoAssignNumbers !== undefined &&
+    typeof autoAssignNumbers !== "boolean" &&
+    typeof autoAssignNumbers !== "number"
+  ) {
+    return res.status(400).json({ error: "autoAssignNumbers must be a boolean" });
   }
 
   const playlist = createPlaylist(
@@ -311,7 +352,8 @@ playlistsRouter.post("/playlists/:id/duplicate", (req, res) => {
     `${source.name} (copy)`,
     source.channels.map((c) => c.id),
     source.checkIntervalHours,
-    source.channelNumberStart
+    source.channelNumberStart,
+    source.autoAssignNumbers
   );
   regenerateEpgChannelsFile();
 

@@ -337,9 +337,10 @@ export function getFallbackStreams(channelId: string): { url: string; quality: s
     db.prepare("SELECT streamUrl FROM channels WHERE id = ?").get(channelId) as
       { streamUrl: string | null } | undefined
   )?.streamUrl;
-  return db
+  const rows = db
     .prepare("SELECT url, quality FROM channel_streams WHERE channelId = ? ORDER BY sortOrder ASC")
     .all(channelId) as { url: string; quality: string | null }[];
+  return primary ? rows.filter((r) => r.url !== primary) : rows;
 }
 
 /** Promotes a fallback URL to be the primary stream for a channel. */

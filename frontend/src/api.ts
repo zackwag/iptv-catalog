@@ -245,6 +245,13 @@ export function duplicatePlaylist(id: string): Promise<Playlist> {
   return request(`/playlists/${id}/duplicate`, { method: "POST" });
 }
 
+export function addChannelToPlaylist(
+  playlistId: string,
+  channelId: string
+): Promise<{ ok: boolean }> {
+  return request(`/playlists/${playlistId}/channels/${channelId}`, { method: "POST" });
+}
+
 export function pushPlaylistToDvr(id: string): Promise<{ ok: boolean; sourceName: string }> {
   return request(`/playlists/${id}/push-to-dvr`, { method: "POST" });
 }
