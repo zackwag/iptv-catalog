@@ -59,9 +59,10 @@ export default function SettingsPage() {
   const [blockDomainsMessage, setBlockDomainsMessage] = useState<string | null>(null);
   const [allCountries, setAllCountries] = useState<string[]>([]);
   const [allCategories, setAllCategories] = useState<string[]>([]);
-  const [categoryPickerVal, setCategoryPickerVal] = useState("");
   const [countrySearch, setCountrySearch] = useState("");
   const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const [categorySearch, setCategorySearch] = useState("");
+  const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const [blockedChannels, setBlockedChannels] = useState<BlockedChannel[]>([]);
   const [blocklistPurgeMessage, setBlocklistPurgeMessage] = useState<string | null>(null);
   const [blockNsfw, setBlockNsfw] = useState(false);
@@ -705,33 +706,105 @@ export default function SettingsPage() {
         <div className="meta" style={{ marginBottom: 10 }}>
           Channels in blocked categories are hidden from Browse Channels.
         </div>
-        <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-          <select
-            value={categoryPickerVal}
-            onChange={(e) => setCategoryPickerVal(e.target.value)}
-            style={{ flex: 1 }}
-          >
-            <option value="">Add a category…</option>
-            {allCategories
-              .filter((c) => !blockedCategories.includes(c.toLowerCase()))
-              .map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-          </select>
-          <button
-            className="secondary"
-            disabled={!categoryPickerVal}
-            onClick={() => {
-              if (categoryPickerVal) {
-                saveBlockedCategories([...blockedCategories, categoryPickerVal.toLowerCase()]);
-                setCategoryPickerVal("");
-              }
-            }}
-          >
-            Add
-          </button>
+        <div style={{ position: "relative", marginBottom: 10 }}>
+          <div style={{ display: "flex", gap: 8 }}>
+            <input
+              type="text"
+              placeholder="Search categories…"
+              value={categorySearch}
+              onFocus={() => setShowCategoryPicker(true)}
+              onChange={(e) => {
+                setCategorySearch(e.target.value);
+                setShowCategoryPicker(true);
+              }}
+              style={{
+                flex: 1,
+                background: "var(--panel)",
+                border: "1px solid var(--border)",
+                color: "var(--text)",
+                padding: "7px 10px",
+                borderRadius: 6,
+                fontSize: 13,
+              }}
+            />
+            {showCategoryPicker && (
+              <button
+                className="secondary"
+                onClick={() => {
+                  setShowCategoryPicker(false);
+                  setCategorySearch("");
+                }}
+              >
+                Done
+              </button>
+            )}
+          </div>
+          {showCategoryPicker && (
+            <div
+              style={{
+                position: "absolute",
+                top: "calc(100% + 4px)",
+                left: 0,
+                right: 0,
+                background: "var(--panel)",
+                border: "1px solid var(--border)",
+                borderRadius: 8,
+                zIndex: 20,
+                maxHeight: 260,
+                overflowY: "auto",
+              }}
+            >
+              {(() => {
+                const q = categorySearch.toLowerCase();
+                const filtered = allCategories.filter(
+                  (c) => !q || c.toLowerCase().includes(q) || titleCase(c).toLowerCase().includes(q)
+                );
+                if (filtered.length === 0)
+                  return (
+                    <div style={{ padding: "10px 12px", fontSize: 13, color: "var(--text-dim)" }}>
+                      No categories match.
+                    </div>
+                  );
+                return filtered.map((c) => {
+                  const blocked = blockedCategories.includes(c.toLowerCase());
+                  return (
+                    <label
+                      key={c}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        padding: "7px 12px",
+                        cursor: "pointer",
+                        background: blocked ? "rgba(79,156,249,0.06)" : undefined,
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!blocked)
+                          (e.currentTarget as HTMLElement).style.background = "var(--panel-hover)";
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLElement).style.background = blocked
+                          ? "rgba(79,156,249,0.06)"
+                          : "";
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={blocked}
+                        onChange={() => {
+                          const next = blocked
+                            ? blockedCategories.filter((x) => x !== c.toLowerCase())
+                            : [...blockedCategories, c.toLowerCase()];
+                          saveBlockedCategories(next);
+                        }}
+                      />
+                      <span style={{ fontSize: 13 }}>{titleCase(c)}</span>
+                    </label>
+                  );
+                });
+              })()}
+            </div>
+          )}
         </div>
         {blockedCategories.length > 0 ? (
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
