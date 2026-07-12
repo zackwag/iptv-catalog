@@ -154,6 +154,17 @@ nav.tabs a:hover:not(.active) {
   margin-top: 0;
 }
 
+/* Prevent iOS Safari from zooming in when tapping an input — it zooms whenever
+   font-size < 16px. Setting 16px here overrides all the smaller sizes we use
+   on desktop, but only on touch screens so desktop layout is unaffected. */
+@media (hover: none) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
 @media (max-width: 600px) {
   .overview-grid,
   .settings-grid {
