@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.12] - 2026-07-12
+
+- Updating package files
+- feat: stream proxy rules — route matching streams through a proxy
+
+
 ## [1.0.11] - 2026-07-12
 
 - Update package-lock.json
