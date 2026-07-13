@@ -3,6 +3,7 @@ import { getPlaylist } from "../services/playlistService";
 import { generateM3U } from "../services/m3uService";
 import { readGeneratedGuide } from "../services/epgChannelsService";
 import { getBaseUrl } from "./playlists";
+import { loadSettings } from "../services/settingsService";
 import { db } from "../db";
 import { createLogger } from "../logger";
 
@@ -26,13 +27,15 @@ publicPlaylistFilesRouter.get("/playlists/:id/playlist.m3u", (req, res) => {
   );
 
   const baseUrl = getBaseUrl(req);
+  const { streamProxyRules } = loadSettings();
   const m3u = generateM3U(
     playlist.channels,
     baseUrl,
     playlist.id,
     flaggedChannelIds,
     playlist.channelNumberStart,
-    playlist.autoAssignNumbers !== 0
+    playlist.autoAssignNumbers !== 0,
+    streamProxyRules
   );
 
   res.setHeader("Content-Type", "application/x-mpegurl; charset=utf-8");

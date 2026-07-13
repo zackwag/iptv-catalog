@@ -15,6 +15,11 @@ export interface Channel {
   updatedAt: string;
 }
 
+export interface StreamProxyRule {
+  pattern: string; // substring matched against stream URL
+  proxy: string; // http(s)://host:port or socks5://host:port
+}
+
 export interface ChannelFilters {
   search?: string;
   country?: string;

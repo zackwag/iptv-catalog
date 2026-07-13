@@ -1,4 +1,4 @@
-import { Channel } from "../types";
+import { Channel, StreamProxyRule } from "../types";
 
 /**
  * Renders a list of channels as an M3U playlist compatible with
@@ -18,7 +18,8 @@ export function generateM3U(
   playlistId: string,
   flaggedChannelIds: Set<string> = new Set(),
   channelNumberStart: number = 1,
-  autoAssignNumbers: boolean = true
+  autoAssignNumbers: boolean = true,
+  proxyRules: StreamProxyRule[] = []
 ): string {
   const lines: string[] = ["#EXTM3U"];
 
@@ -44,8 +45,13 @@ export function generateM3U(
 
     const displayName = flaggedChannelIds.has(ch.id) ? `⚠ ${ch.name}` : ch.name;
 
+    const matchingRule = proxyRules.find((r) => ch.streamUrl!.includes(r.pattern));
+    const streamUrl = matchingRule
+      ? `${baseUrl}/api/stream-proxy?url=${encodeURIComponent(ch.streamUrl!)}`
+      : ch.streamUrl;
+
     lines.push(`#EXTINF:-1 ${attrs},${displayName}`);
-    lines.push(ch.streamUrl);
+    lines.push(streamUrl!);
 
     channelNumber++;
   }

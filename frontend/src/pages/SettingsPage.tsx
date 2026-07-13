@@ -10,6 +10,7 @@ import {
   AppSettings,
   ThemeMode,
   BlockedChannel,
+  StreamProxyRule,
 } from "../api";
 import { applyTheme, watchSystemTheme } from "../theme";
 import { describeCron } from "../cronFormat";
@@ -67,6 +68,12 @@ export default function SettingsPage() {
   const [blocklistPurgeMessage, setBlocklistPurgeMessage] = useState<string | null>(null);
   const [blockNsfw, setBlockNsfw] = useState(false);
 
+  const [proxyRules, setProxyRules] = useState<StreamProxyRule[]>([]);
+  const [proxyRulePatternDraft, setProxyRulePatternDraft] = useState("");
+  const [proxyRuleProxyDraft, setProxyRuleProxyDraft] = useState("");
+  const [savingProxyRules, setSavingProxyRules] = useState(false);
+  const [proxyRulesMessage, setProxyRulesMessage] = useState<string | null>(null);
+
   const [epgStalenessDraft, setEpgStalenessDraft] = useState("12");
   const [savingEpgStaleness, setSavingEpgStaleness] = useState(false);
   const [epgStalenessMessage, setEpgStalenessMessage] = useState<string | null>(null);
@@ -108,6 +115,7 @@ export default function SettingsPage() {
         );
         setBlockStreamDomainsDraft(s.blockStreamDomains || "");
         setBlockNsfw(s.blockNsfw ?? false);
+        setProxyRules(s.streamProxyRules ?? []);
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
@@ -352,6 +360,36 @@ export default function SettingsPage() {
     } finally {
       setSavingBlockDomains(false);
     }
+  }
+
+  async function saveProxyRules(rules: StreamProxyRule[]) {
+    setSavingProxyRules(true);
+    setProxyRulesMessage(null);
+    try {
+      const updated = await updateSettings({ streamProxyRules: rules });
+      setProxyRules(updated.streamProxyRules ?? []);
+      setSettings(updated);
+      setProxyRulesMessage("Saved.");
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setSavingProxyRules(false);
+    }
+  }
+
+  async function handleAddProxyRule() {
+    const pattern = proxyRulePatternDraft.trim();
+    const proxy = proxyRuleProxyDraft.trim();
+    if (!pattern || !proxy) return;
+    const next = [...proxyRules, { pattern, proxy }];
+    await saveProxyRules(next);
+    setProxyRulePatternDraft("");
+    setProxyRuleProxyDraft("");
+  }
+
+  async function handleRemoveProxyRule(index: number) {
+    const next = proxyRules.filter((_, i) => i !== index);
+    await saveProxyRules(next);
   }
 
   if (loading) return <div className="empty-state">Loading settings…</div>;
@@ -881,6 +919,83 @@ export default function SettingsPage() {
             {blockDomainsMessage}
           </div>
         )}
+      </div>
+
+      <div className="playlist-card">
+        <h3>Stream proxy rules</h3>
+        <div className="meta" style={{ marginBottom: 10 }}>
+          Route streams through a proxy when their URL contains the given pattern. Useful for
+          geo-blocked content or streams that require a specific network path. Supports HTTP/HTTPS
+          and SOCKS5 proxies. Matching streams will be routed through this server, which passes them
+          through the configured proxy.
+        </div>
+        {proxyRules.length > 0 && (
+          <div style={{ marginBottom: 12 }}>
+            {proxyRules.map((rule, i) => (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "6px 0",
+                  borderBottom: "1px solid var(--border)",
+                }}
+              >
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 2 }}>
+                    Pattern
+                  </div>
+                  <code style={{ fontSize: 12, wordBreak: "break-all" }}>{rule.pattern}</code>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 2 }}>
+                    Proxy
+                  </div>
+                  <code style={{ fontSize: 12, wordBreak: "break-all" }}>{rule.proxy}</code>
+                </div>
+                <button
+                  className="secondary"
+                  disabled={savingProxyRules}
+                  onClick={() => handleRemoveProxyRule(i)}
+                  style={{ flexShrink: 0, padding: "4px 10px", fontSize: 12 }}
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+          <input
+            type="text"
+            placeholder="URL pattern (e.g. bbc.co.uk)"
+            value={proxyRulePatternDraft}
+            onChange={(e) => setProxyRulePatternDraft(e.target.value)}
+            style={{ flex: "1 1 140px", minWidth: 0 }}
+          />
+          <input
+            type="text"
+            placeholder="Proxy URL (e.g. http://proxy:3128)"
+            value={proxyRuleProxyDraft}
+            onChange={(e) => setProxyRuleProxyDraft(e.target.value)}
+            style={{ flex: "2 1 200px", minWidth: 0 }}
+          />
+          <button
+            className="primary"
+            disabled={
+              savingProxyRules || !proxyRulePatternDraft.trim() || !proxyRuleProxyDraft.trim()
+            }
+            onClick={handleAddProxyRule}
+            style={{ flexShrink: 0 }}
+          >
+            Add rule
+          </button>
+        </div>
+        {proxyRulesMessage && (
+          <div style={{ fontSize: 13, color: "var(--success)" }}>{proxyRulesMessage}</div>
+        )}
+        {proxyRules.length === 0 && <div className="meta">No proxy rules configured.</div>}
       </div>
 
       <div className="playlist-card">

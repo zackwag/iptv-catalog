@@ -1,6 +1,7 @@
 import { Router } from "express";
 import cron from "node-cron";
 import { loadSettings, saveSettings, ThemeMode } from "../services/settingsService";
+import { StreamProxyRule } from "../types";
 import { scheduleCatalogRefresh } from "../services/epgSchedulerService";
 import { purgeBlocklistedFromPlaylists } from "../services/catalogService";
 import { regenerateEpgChannelsFile } from "../services/epgSchedulerService";
@@ -41,6 +42,7 @@ settingsRouter.patch("/settings", (req, res) => {
     blockCategories,
     blockStreamDomains,
     blockNsfw,
+    streamProxyRules,
   } = req.body ?? {};
 
   if (catalogRefreshCron !== undefined) {
@@ -80,6 +82,24 @@ settingsRouter.patch("/settings", (req, res) => {
   if (blockNsfw !== undefined && typeof blockNsfw !== "boolean") {
     return res.status(400).json({ error: "blockNsfw must be a boolean" });
   }
+  if (streamProxyRules !== undefined) {
+    if (
+      !Array.isArray(streamProxyRules) ||
+      streamProxyRules.some(
+        (r: unknown) =>
+          typeof r !== "object" ||
+          r === null ||
+          typeof (r as StreamProxyRule).pattern !== "string" ||
+          typeof (r as StreamProxyRule).proxy !== "string" ||
+          !(r as StreamProxyRule).pattern.trim() ||
+          !(r as StreamProxyRule).proxy.trim()
+      )
+    ) {
+      return res
+        .status(400)
+        .json({ error: "streamProxyRules must be an array of {pattern, proxy} objects" });
+    }
+  }
   if (
     epgStalenessWarningHours !== undefined &&
     (!Number.isInteger(epgStalenessWarningHours) || epgStalenessWarningHours <= 0)
@@ -104,6 +124,7 @@ settingsRouter.patch("/settings", (req, res) => {
       blockCategories,
       blockStreamDomains,
       blockNsfw,
+      streamProxyRules,
     });
 
     // Apply immediately — no container restart required to pick up a new schedule.

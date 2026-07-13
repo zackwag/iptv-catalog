@@ -98,6 +98,11 @@ export interface EpgHealth {
 
 export type ThemeMode = "light" | "dark" | "system";
 
+export interface StreamProxyRule {
+  pattern: string;
+  proxy: string;
+}
+
 export interface AppSettings {
   catalogRefreshCron: string;
   catalogRefreshedAt: string | null;
@@ -113,6 +118,7 @@ export interface AppSettings {
   blockCategories: string;
   blockStreamDomains: string;
   blockNsfw: boolean;
+  streamProxyRules: StreamProxyRule[];
   purgedFromPlaylists?: number;
   version: string;
 }
@@ -134,6 +140,7 @@ export function updateSettings(updates: {
   blockCategories?: string;
   blockStreamDomains?: string;
   blockNsfw?: boolean;
+  streamProxyRules?: StreamProxyRule[];
 }): Promise<AppSettings> {
   return request("/settings", {
     method: "PATCH",
