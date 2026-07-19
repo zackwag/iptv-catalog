@@ -1,7 +1,6 @@
 import cron from "node-cron";
 import { getMeta, setMeta } from "../db";
 import { createLogger } from "../logger";
-import { StreamProxyRule } from "../types";
 
 const log = createLogger("settingsService");
 
@@ -17,7 +16,6 @@ const BLOCK_COUNTRIES_KEY = "blockCountries";
 const BLOCK_CATEGORIES_KEY = "blockCategories";
 const BLOCK_STREAM_DOMAINS_KEY = "blockStreamDomains";
 const BLOCK_NSFW_KEY = "blockNsfw";
-const STREAM_PROXY_RULES_KEY = "streamProxyRules";
 
 const FALLBACK_DEFAULT_CRON = "0 4 * * *"; // daily at 4am
 const DEFAULT_AUTO_REMOVE_ENABLED = false;
@@ -59,8 +57,6 @@ export interface Settings {
   blockStreamDomains: string;
   /** Whether to hide NSFW-flagged channels from the catalog. */
   blockNsfw: boolean;
-  /** Rules mapping stream URL substrings to proxy URLs. */
-  streamProxyRules: StreamProxyRule[];
 }
 
 function isValidHttpUrl(value: string): boolean {
@@ -112,14 +108,6 @@ export function loadSettings(): Settings {
   const blockNsfwRaw = getMeta(BLOCK_NSFW_KEY);
   const blockNsfw = blockNsfwRaw === null ? true : blockNsfwRaw === "true";
 
-  let streamProxyRules: StreamProxyRule[] = [];
-  try {
-    const raw = getMeta(STREAM_PROXY_RULES_KEY);
-    if (raw) streamProxyRules = JSON.parse(raw) as StreamProxyRule[];
-  } catch {
-    // ignore corrupt stored value
-  }
-
   const epgStalenessRaw = getMeta(EPG_STALENESS_WARNING_HOURS_KEY);
   const parsedEpgStaleness = epgStalenessRaw ? parseInt(epgStalenessRaw, 10) : NaN;
   const epgStalenessWarningHours =
@@ -145,7 +133,6 @@ export function loadSettings(): Settings {
     blockCategories,
     blockStreamDomains,
     blockNsfw,
-    streamProxyRules,
   };
   return _settingsCache;
 }
@@ -221,10 +208,6 @@ export function saveSettings(updates: Partial<Settings>): Settings {
   }
   if (updates.blockNsfw !== undefined) {
     setMeta(BLOCK_NSFW_KEY, updates.blockNsfw ? "true" : "false");
-  }
-
-  if (updates.streamProxyRules !== undefined) {
-    setMeta(STREAM_PROXY_RULES_KEY, JSON.stringify(updates.streamProxyRules));
   }
 
   log.info("settings updated", { ...updates });

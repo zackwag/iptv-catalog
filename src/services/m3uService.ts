@@ -1,4 +1,4 @@
-import { Channel, StreamProxyRule } from "../types";
+import { Channel } from "../types";
 
 /**
  * Renders a list of channels as an M3U playlist compatible with
@@ -11,6 +11,9 @@ import { Channel, StreamProxyRule } from "../types";
  *   effect when autoAssignNumbers is false.
  * @param autoAssignNumbers when false, channel-number tags are omitted and
  *   Channels DVR assigns numbers itself.
+ * @param vpnRoutedChannelIds channel ids that are assigned to a VPN/geo-proxy
+ *   endpoint — their stream URL is rewritten to go through this server's
+ *   /api/stream-proxy route instead of straight to the origin.
  */
 export function generateM3U(
   channels: Channel[],
@@ -19,7 +22,7 @@ export function generateM3U(
   flaggedChannelIds: Set<string> = new Set(),
   channelNumberStart: number = 1,
   autoAssignNumbers: boolean = true,
-  proxyRules: StreamProxyRule[] = []
+  vpnRoutedChannelIds: Set<string> = new Set()
 ): string {
   const lines: string[] = ["#EXTM3U"];
 
@@ -45,9 +48,8 @@ export function generateM3U(
 
     const displayName = flaggedChannelIds.has(ch.id) ? `⚠ ${ch.name}` : ch.name;
 
-    const matchingRule = proxyRules.find((r) => ch.streamUrl!.includes(r.pattern));
-    const streamUrl = matchingRule
-      ? `${baseUrl}/api/stream-proxy?url=${encodeURIComponent(ch.streamUrl!)}`
+    const streamUrl = vpnRoutedChannelIds.has(ch.id)
+      ? `${baseUrl}/api/stream-proxy?url=${encodeURIComponent(ch.streamUrl!)}&channelId=${encodeURIComponent(ch.id)}`
       : ch.streamUrl;
 
     lines.push(`#EXTINF:-1 ${attrs},${displayName}`);

@@ -3,9 +3,10 @@ import Hls from "hls.js";
 
 interface Props {
   streamUrl: string;
+  channelId?: string;
 }
 
-export default function StreamPreview({ streamUrl }: Props) {
+export default function StreamPreview({ streamUrl, channelId }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +19,9 @@ export default function StreamPreview({ streamUrl }: Props) {
     setError(null);
     setLoading(true);
 
-    const proxied = `/api/stream-proxy?url=${encodeURIComponent(streamUrl)}`;
+    const proxied = `/api/stream-proxy?url=${encodeURIComponent(streamUrl)}${
+      channelId ? `&channelId=${encodeURIComponent(channelId)}` : ""
+    }`;
 
     if (Hls.isSupported()) {
       const hls = new Hls({ enableWorker: false });
@@ -56,7 +59,7 @@ export default function StreamPreview({ streamUrl }: Props) {
       hlsRef.current = null;
       video.src = "";
     };
-  }, [streamUrl]);
+  }, [streamUrl, channelId]);
 
   return (
     <div

@@ -8,6 +8,11 @@ import {
   purgeBlocklistedFromPlaylists,
 } from "../services/catalogService";
 import { regenerateEpgChannelsFile } from "../services/epgSchedulerService";
+import {
+  assignChannelVpn,
+  unassignChannelVpn,
+  getChannelVpnAssignments,
+} from "../services/vpnEndpointService";
 import { getMeta, db } from "../db";
 import { createLogger } from "../logger";
 
@@ -139,6 +144,36 @@ channelsRouter.delete("/channels/:id/block", (req, res) => {
   const result = db.prepare("DELETE FROM blocked_channels WHERE channelId = ?").run(req.params.id);
   if (result.changes === 0) return res.status(404).json({ error: "channel not in blocklist" });
   log.info(`unblocked channel ${req.params.id}`);
+  res.json({ ok: true });
+});
+
+// GET /channels/vpn-assignments — channelId -> vpnEndpointId map for every routed channel
+channelsRouter.get("/channels/vpn-assignments", (_req, res) => {
+  res.json({ assignments: Object.fromEntries(getChannelVpnAssignments()) });
+});
+
+// PUT /channels/:id/vpn  { vpnEndpointId } — route this channel's stream through a VPN/geo-proxy endpoint
+channelsRouter.put("/channels/:id/vpn", (req, res) => {
+  const { id } = req.params;
+  const { vpnEndpointId } = req.body ?? {};
+  const channel = db.prepare("SELECT id FROM channels WHERE id = ?").get(id);
+  if (!channel) return res.status(404).json({ error: "channel not found" });
+  if (typeof vpnEndpointId !== "string" || !vpnEndpointId.trim()) {
+    return res.status(400).json({ error: "vpnEndpointId is required" });
+  }
+
+  try {
+    assignChannelVpn(id, vpnEndpointId);
+    log.info(`routed channel ${id} via VPN endpoint ${vpnEndpointId}`);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(400).json({ error: (err as Error).message });
+  }
+});
+
+// DELETE /channels/:id/vpn — stop routing this channel through a VPN/geo-proxy endpoint
+channelsRouter.delete("/channels/:id/vpn", (req, res) => {
+  unassignChannelVpn(req.params.id);
   res.json({ ok: true });
 });
 

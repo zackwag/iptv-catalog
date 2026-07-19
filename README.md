@@ -73,6 +73,8 @@ None are required — all have working defaults.
 | `FEED_TEST_TICK_CRON` | `*/15 * * * *` | How often the scheduler checks which playlists are due. |
 | `WEBHOOK_TIMEOUT_MS` | `5000` | Webhook delivery timeout. |
 | `TZ` | unset (UTC) | Container timezone, e.g. `America/New_York`. Affects cron schedule and displayed timestamps. |
+| `VPN_HEALTH_CHECK_CRON` | `*/5 * * * *` | How often registered VPN/geo-proxy endpoints are health-checked. |
+| `VPN_HEALTH_CHECK_URL` | `https://api.ipify.org?format=json` | URL fetched through each VPN endpoint to confirm it's reachable (also used to report the exit IP). |
 
 ## Usage
 
@@ -128,7 +130,10 @@ Other endpoints: `DELETE /api/playlists/:id`, `POST /api/playlists/:id/test`,
 `PATCH /api/notifications/:id`, `POST /api/notifications/dismiss-all`,
 `GET /api/channels/:id/streams`, `GET /api/channels/:id/playlists`,
 `GET /api/channels/blocked`, `DELETE /api/channels/:id/block`,
-`GET /api/backup/playlists`, `POST /api/backup/export`, `POST /api/backup/import`.
+`GET /api/backup/playlists`, `POST /api/backup/export`, `POST /api/backup/import`,
+`GET/POST /api/vpn-endpoints`, `PATCH/DELETE /api/vpn-endpoints/:id`,
+`POST /api/vpn-endpoints/:id/check`, `GET /api/channels/vpn-assignments`,
+`PUT/DELETE /api/channels/:id/vpn`.
 
 ## Channel numbering & source limits
 
@@ -158,6 +163,33 @@ playlist's M3U as a source in one click — no copy/paste needed.
 
 The M3U/EPG URLs are permanent (UUID-based) and don't change as you edit channel selection, so
 adding the source once is all that's needed.
+
+## Geo-routing selected channels through a VPN
+
+Some streams are geo-restricted to a specific country. Rather than proxying everything through
+one VPN, you can register any number of named VPN "endpoints" and assign specific channels to
+route through them — other channels keep connecting directly.
+
+1. **Run a VPN sidecar container per country** on the same Docker network as the app. `docker-compose.yml`
+   ships with two disabled example services (`gluetun-uk`, `gluetun-us`) using
+   [gluetun](https://github.com/qmcgaw/gluetun), which connects to a VPN provider and exposes a
+   local HTTP proxy (`HTTPPROXY=on`, port 8888) for other containers to use. Fill in your VPN
+   provider's credentials, then start them with:
+   ```bash
+   docker compose --profile vpn up -d
+   ```
+   Any container that can reach an HTTP/HTTPS or SOCKS5 proxy address works here — gluetun is one
+   option, not a requirement.
+2. **Register the endpoint** in Settings → "VPN / geo-proxy endpoints": give it a name, optional
+   country code, and the proxy address (e.g. `http://gluetun-uk:8888`). The app checks reachability
+   every few minutes (`VPN_HEALTH_CHECK_CRON`) and shows Up/Down status plus the exit IP.
+3. **Assign channels to it** — open a channel in Browse Channels and pick the endpoint from the
+   "Route via VPN" dropdown (or leave it "Direct" for no proxy).
+
+Assigned channels' stream URLs are rewritten in the exported M3U to go through this server's
+`/api/stream-proxy` route, which forwards the request through the assigned endpoint's proxy — so
+Channels DVR/VLC and the in-app preview all honor the routing without any client-side
+configuration. Unassigned channels are unaffected and stream directly as before.
 
 ## Feed testing & fallback streams
 

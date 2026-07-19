@@ -7,6 +7,10 @@ import {
   fetchChannelPlaylists,
   fetchPlaylists,
   addChannelToPlaylist,
+  fetchVpnEndpoints,
+  assignChannelVpn,
+  unassignChannelVpn,
+  VpnEndpoint,
 } from "../api";
 
 interface Props {
@@ -15,6 +19,8 @@ interface Props {
   onToggle: (id: string) => void;
   onClose: () => void;
   onBlock: (channel: Channel) => void;
+  vpnEndpointId?: string;
+  onVpnAssignmentChange?: (channelId: string, vpnEndpointId: string | null) => void;
 }
 
 function initials(name: string): string {
@@ -37,6 +43,8 @@ export default function ChannelDetailModal({
   onToggle,
   onClose,
   onBlock,
+  vpnEndpointId,
+  onVpnAssignmentChange,
 }: Props) {
   const [showPreview, setShowPreview] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -46,6 +54,8 @@ export default function ChannelDetailModal({
   const [playlists, setPlaylists] = useState<{ id: string; name: string }[]>([]);
   const [allPlaylists, setAllPlaylists] = useState<Playlist[]>([]);
   const [addingToPlaylist, setAddingToPlaylist] = useState(false);
+  const [vpnEndpoints, setVpnEndpoints] = useState<VpnEndpoint[]>([]);
+  const [savingVpnAssignment, setSavingVpnAssignment] = useState(false);
 
   useEffect(() => {
     fetchChannelStreams(channel.id)
@@ -57,7 +67,27 @@ export default function ChannelDetailModal({
     fetchPlaylists()
       .then((r) => setAllPlaylists(r.playlists))
       .catch(() => {});
+    fetchVpnEndpoints()
+      .then((r) => setVpnEndpoints(r.endpoints))
+      .catch(() => {});
   }, [channel.id]);
+
+  async function handleVpnChange(nextId: string) {
+    setSavingVpnAssignment(true);
+    try {
+      if (nextId) {
+        await assignChannelVpn(channel.id, nextId);
+        onVpnAssignmentChange?.(channel.id, nextId);
+      } else {
+        await unassignChannelVpn(channel.id);
+        onVpnAssignmentChange?.(channel.id, null);
+      }
+    } catch {
+      // ignore — dropdown just won't reflect the change
+    } finally {
+      setSavingVpnAssignment(false);
+    }
+  }
 
   async function handleAddToPlaylist(playlistId: string) {
     setAddingToPlaylist(true);
@@ -248,9 +278,45 @@ export default function ChannelDetailModal({
         </div>
 
         {channel.streamUrl && (
+          <div style={{ marginBottom: 16 }}>
+            <div className="meta" style={{ marginBottom: 4 }}>
+              Route via VPN
+            </div>
+            <select
+              value={vpnEndpointId || ""}
+              disabled={savingVpnAssignment}
+              onChange={(e) => handleVpnChange(e.target.value)}
+              style={{
+                width: "100%",
+                background: "var(--panel)",
+                border: "1px solid var(--border)",
+                color: "var(--text)",
+                padding: "6px 10px",
+                borderRadius: 6,
+                fontSize: 13,
+              }}
+            >
+              <option value="">Direct (no proxy)</option>
+              {vpnEndpoints.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.name}
+                  {e.country ? ` (${e.country.toUpperCase()})` : ""}
+                  {e.lastStatus === "down" ? " — down" : ""}
+                </option>
+              ))}
+            </select>
+            {vpnEndpoints.length === 0 && (
+              <div className="meta" style={{ marginTop: 4 }}>
+                No VPN endpoints registered yet — add one in Settings.
+              </div>
+            )}
+          </div>
+        )}
+
+        {channel.streamUrl && (
           <>
             {showPreview ? (
-              <StreamPreview streamUrl={channel.streamUrl} />
+              <StreamPreview streamUrl={channel.streamUrl} channelId={channel.id} />
             ) : (
               <div style={{ marginBottom: 16 }}>
                 <button
