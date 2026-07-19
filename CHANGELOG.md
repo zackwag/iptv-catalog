@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.13] - 2026-07-19
+
+- Add named VPN/geo-proxy endpoints with per-channel routing (#2)
+- Update package-lock.json
+
 ## [1.0.12] - 2026-07-12
 
 - Updating package files
