@@ -6,6 +6,7 @@ interface Props {
   selectedIds: Set<string>;
   selectedChannels?: Map<string, Channel>;
   playlistMemberIds?: Set<string>;
+  vpnRoutedIds?: Set<string>;
   filters: ChannelFilters;
   onToggle: (id: string) => void;
   onToggleAll: (ids: string[]) => void;
@@ -33,6 +34,7 @@ export default function ChannelTable({
   selectedIds,
   selectedChannels,
   playlistMemberIds,
+  vpnRoutedIds,
   filters,
   onToggle,
   onToggleAll,
@@ -99,6 +101,11 @@ export default function ChannelTable({
                 style={{ fontSize: 11, color: "var(--success)", flexShrink: 0 }}
               >
                 ★
+              </span>
+            )}
+            {vpnRoutedIds?.has(ch.id) && (
+              <span title="Routed via VPN" style={{ fontSize: 11, flexShrink: 0 }}>
+                🌐
               </span>
             )}
             {ch.isNsfw === 1 && (

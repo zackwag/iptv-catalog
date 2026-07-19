@@ -7,10 +7,14 @@ import {
   fetchCategories,
   fetchBlockedChannels,
   unblockChannel,
+  fetchVpnEndpoints,
+  createVpnEndpoint,
+  deleteVpnEndpoint,
+  checkVpnEndpoint,
   AppSettings,
   ThemeMode,
   BlockedChannel,
-  StreamProxyRule,
+  VpnEndpoint,
 } from "../api";
 import { applyTheme, watchSystemTheme } from "../theme";
 import { describeCron } from "../cronFormat";
@@ -68,11 +72,13 @@ export default function SettingsPage() {
   const [blocklistPurgeMessage, setBlocklistPurgeMessage] = useState<string | null>(null);
   const [blockNsfw, setBlockNsfw] = useState(false);
 
-  const [proxyRules, setProxyRules] = useState<StreamProxyRule[]>([]);
-  const [proxyRulePatternDraft, setProxyRulePatternDraft] = useState("");
-  const [proxyRuleProxyDraft, setProxyRuleProxyDraft] = useState("");
-  const [savingProxyRules, setSavingProxyRules] = useState(false);
-  const [proxyRulesMessage, setProxyRulesMessage] = useState<string | null>(null);
+  const [vpnEndpoints, setVpnEndpoints] = useState<VpnEndpoint[]>([]);
+  const [vpnNameDraft, setVpnNameDraft] = useState("");
+  const [vpnCountryDraft, setVpnCountryDraft] = useState("");
+  const [vpnProxyUrlDraft, setVpnProxyUrlDraft] = useState("");
+  const [savingVpnEndpoint, setSavingVpnEndpoint] = useState(false);
+  const [checkingVpnEndpointId, setCheckingVpnEndpointId] = useState<string | null>(null);
+  const [vpnEndpointsError, setVpnEndpointsError] = useState<string | null>(null);
 
   const [epgStalenessDraft, setEpgStalenessDraft] = useState("12");
   const [savingEpgStaleness, setSavingEpgStaleness] = useState(false);
@@ -115,7 +121,6 @@ export default function SettingsPage() {
         );
         setBlockStreamDomainsDraft(s.blockStreamDomains || "");
         setBlockNsfw(s.blockNsfw ?? false);
-        setProxyRules(s.streamProxyRules ?? []);
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
@@ -123,12 +128,19 @@ export default function SettingsPage() {
 
   useEffect(load, []);
 
+  function loadVpnEndpoints() {
+    fetchVpnEndpoints()
+      .then((r) => setVpnEndpoints(r.endpoints))
+      .catch((e) => setVpnEndpointsError(e.message));
+  }
+
   useEffect(() => {
     fetchCountries().then((r) => setAllCountries([...r.countries].sort()));
     fetchCategories().then((r) =>
       setAllCategories([...r.categories].filter((c) => c !== "__none__").sort())
     );
     fetchBlockedChannels().then((r) => setBlockedChannels(r.channels));
+    loadVpnEndpoints();
   }, []);
 
   const effectiveCron = preset === "custom" ? customCron : preset;
@@ -362,34 +374,56 @@ export default function SettingsPage() {
     }
   }
 
-  async function saveProxyRules(rules: StreamProxyRule[]) {
-    setSavingProxyRules(true);
-    setProxyRulesMessage(null);
+  async function handleAddVpnEndpoint() {
+    const name = vpnNameDraft.trim();
+    const proxyUrl = vpnProxyUrlDraft.trim();
+    if (!name || !proxyUrl) return;
+    setSavingVpnEndpoint(true);
+    setVpnEndpointsError(null);
     try {
-      const updated = await updateSettings({ streamProxyRules: rules });
-      setProxyRules(updated.streamProxyRules ?? []);
-      setSettings(updated);
-      setProxyRulesMessage("Saved.");
+      const endpoint = await createVpnEndpoint({
+        name,
+        country: vpnCountryDraft.trim(),
+        proxyUrl,
+      });
+      setVpnEndpoints((prev) => [...prev, endpoint].sort((a, b) => a.name.localeCompare(b.name)));
+      setVpnNameDraft("");
+      setVpnCountryDraft("");
+      setVpnProxyUrlDraft("");
     } catch (e) {
-      setError((e as Error).message);
+      setVpnEndpointsError((e as Error).message);
     } finally {
-      setSavingProxyRules(false);
+      setSavingVpnEndpoint(false);
     }
   }
 
-  async function handleAddProxyRule() {
-    const pattern = proxyRulePatternDraft.trim();
-    const proxy = proxyRuleProxyDraft.trim();
-    if (!pattern || !proxy) return;
-    const next = [...proxyRules, { pattern, proxy }];
-    await saveProxyRules(next);
-    setProxyRulePatternDraft("");
-    setProxyRuleProxyDraft("");
+  async function handleDeleteVpnEndpoint(endpoint: VpnEndpoint) {
+    if (
+      endpoint.channelCount > 0 &&
+      !confirm(
+        `Delete "${endpoint.name}"? ${endpoint.channelCount} channel(s) routed through it will fall back to a direct connection.`
+      )
+    ) {
+      return;
+    }
+    try {
+      await deleteVpnEndpoint(endpoint.id);
+      setVpnEndpoints((prev) => prev.filter((e) => e.id !== endpoint.id));
+    } catch (e) {
+      setVpnEndpointsError((e as Error).message);
+    }
   }
 
-  async function handleRemoveProxyRule(index: number) {
-    const next = proxyRules.filter((_, i) => i !== index);
-    await saveProxyRules(next);
+  async function handleCheckVpnEndpoint(id: string) {
+    setCheckingVpnEndpointId(id);
+    try {
+      const updated = await checkVpnEndpoint(id);
+      setVpnEndpoints((prev) => prev.map((e) => (e.id === id ? updated : e)));
+    } catch (e) {
+      setVpnEndpointsError((e as Error).message);
+    } finally {
+      setCheckingVpnEndpointId(null);
+    }
   }
 
   if (loading) return <div className="empty-state">Loading settings…</div>;
@@ -922,46 +956,84 @@ export default function SettingsPage() {
       </div>
 
       <div className="playlist-card">
-        <h3>Stream proxy rules</h3>
+        <h3>VPN / geo-proxy endpoints</h3>
         <div className="meta" style={{ marginBottom: 10 }}>
-          Route streams through a proxy when their URL contains the given pattern. Useful for
-          geo-blocked content or streams that require a specific network path. Supports HTTP/HTTPS
-          and SOCKS5 proxies. Matching streams will be routed through this server, which passes them
-          through the configured proxy.
+          Register each VPN sidecar container here (name, country, and its SOCKS5/HTTP proxy address
+          on the Docker network — e.g. <code>socks5://gluetun-uk:1080</code>). This server checks
+          reachability every few minutes. Once registered, open a channel in Browse Channels to
+          route its stream through one of these endpoints.
         </div>
-        {proxyRules.length > 0 && (
+        {vpnEndpoints.length > 0 && (
           <div style={{ marginBottom: 12 }}>
-            {proxyRules.map((rule, i) => (
+            {vpnEndpoints.map((endpoint) => (
               <div
-                key={i}
+                key={endpoint.id}
                 style={{
                   display: "flex",
                   alignItems: "center",
                   gap: 8,
-                  padding: "6px 0",
+                  padding: "8px 0",
                   borderBottom: "1px solid var(--border)",
+                  flexWrap: "wrap",
                 }}
               >
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 2 }}>
-                    Pattern
+                <div style={{ flex: "1 1 160px", minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                    <strong style={{ fontSize: 13 }}>{endpoint.name}</strong>
+                    {endpoint.country && (
+                      <span className="meta" style={{ fontSize: 12 }}>
+                        {countryFlag(endpoint.country)} {countryName(endpoint.country)}
+                      </span>
+                    )}
                   </div>
-                  <code style={{ fontSize: 12, wordBreak: "break-all" }}>{rule.pattern}</code>
+                  <code style={{ fontSize: 11, wordBreak: "break-all", color: "var(--text-dim)" }}>
+                    {endpoint.proxyUrl}
+                  </code>
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 2 }}>
-                    Proxy
+                <div style={{ flex: "1 1 160px", minWidth: 0, fontSize: 12 }}>
+                  {endpoint.lastStatus === "up" ? (
+                    <span
+                      className="badge"
+                      style={{ background: "#1e2a1a", color: "#7fc87a", fontSize: 10 }}
+                    >
+                      Up{endpoint.lastExitIp ? ` · exit ${endpoint.lastExitIp}` : ""}
+                    </span>
+                  ) : endpoint.lastStatus === "down" ? (
+                    <span
+                      className="badge"
+                      style={{ background: "#3d1a1a", color: "#f16c6c", fontSize: 10 }}
+                      title={endpoint.lastError || undefined}
+                    >
+                      Down
+                    </span>
+                  ) : (
+                    <span className="badge muted" style={{ fontSize: 10 }}>
+                      Unknown
+                    </span>
+                  )}
+                  <div className="meta" style={{ marginTop: 4 }}>
+                    {endpoint.channelCount} channel{endpoint.channelCount === 1 ? "" : "s"} routed
+                    {endpoint.lastCheckedAt &&
+                      ` · checked ${new Date(endpoint.lastCheckedAt).toLocaleString()}`}
                   </div>
-                  <code style={{ fontSize: 12, wordBreak: "break-all" }}>{rule.proxy}</code>
                 </div>
-                <button
-                  className="secondary"
-                  disabled={savingProxyRules}
-                  onClick={() => handleRemoveProxyRule(i)}
-                  style={{ flexShrink: 0, padding: "4px 10px", fontSize: 12 }}
-                >
-                  Remove
-                </button>
+                <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                  <button
+                    className="secondary"
+                    disabled={checkingVpnEndpointId === endpoint.id}
+                    onClick={() => handleCheckVpnEndpoint(endpoint.id)}
+                    style={{ padding: "4px 10px", fontSize: 12 }}
+                  >
+                    {checkingVpnEndpointId === endpoint.id ? "Checking…" : "Recheck"}
+                  </button>
+                  <button
+                    className="secondary"
+                    onClick={() => handleDeleteVpnEndpoint(endpoint)}
+                    style={{ padding: "4px 10px", fontSize: 12 }}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -969,33 +1041,38 @@ export default function SettingsPage() {
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
           <input
             type="text"
-            placeholder="URL pattern (e.g. bbc.co.uk)"
-            value={proxyRulePatternDraft}
-            onChange={(e) => setProxyRulePatternDraft(e.target.value)}
-            style={{ flex: "1 1 140px", minWidth: 0 }}
+            placeholder="Name (e.g. UK)"
+            value={vpnNameDraft}
+            onChange={(e) => setVpnNameDraft(e.target.value)}
+            style={{ flex: "1 1 100px", minWidth: 0 }}
           />
           <input
             type="text"
-            placeholder="Proxy URL (e.g. http://proxy:3128)"
-            value={proxyRuleProxyDraft}
-            onChange={(e) => setProxyRuleProxyDraft(e.target.value)}
-            style={{ flex: "2 1 200px", minWidth: 0 }}
+            placeholder="Country code (e.g. gb)"
+            value={vpnCountryDraft}
+            onChange={(e) => setVpnCountryDraft(e.target.value)}
+            style={{ flex: "1 1 100px", minWidth: 0 }}
+          />
+          <input
+            type="text"
+            placeholder="Proxy URL (e.g. socks5://gluetun-uk:1080)"
+            value={vpnProxyUrlDraft}
+            onChange={(e) => setVpnProxyUrlDraft(e.target.value)}
+            style={{ flex: "2 1 220px", minWidth: 0 }}
           />
           <button
             className="primary"
-            disabled={
-              savingProxyRules || !proxyRulePatternDraft.trim() || !proxyRuleProxyDraft.trim()
-            }
-            onClick={handleAddProxyRule}
+            disabled={savingVpnEndpoint || !vpnNameDraft.trim() || !vpnProxyUrlDraft.trim()}
+            onClick={handleAddVpnEndpoint}
             style={{ flexShrink: 0 }}
           >
-            Add rule
+            {savingVpnEndpoint ? "Adding…" : "Add endpoint"}
           </button>
         </div>
-        {proxyRulesMessage && (
-          <div style={{ fontSize: 13, color: "var(--success)" }}>{proxyRulesMessage}</div>
+        {vpnEndpointsError && (
+          <div style={{ fontSize: 13, color: "var(--danger)" }}>{vpnEndpointsError}</div>
         )}
-        {proxyRules.length === 0 && <div className="meta">No proxy rules configured.</div>}
+        {vpnEndpoints.length === 0 && <div className="meta">No VPN endpoints registered yet.</div>}
       </div>
 
       <div className="playlist-card">

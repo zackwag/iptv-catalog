@@ -98,11 +98,6 @@ export interface EpgHealth {
 
 export type ThemeMode = "light" | "dark" | "system";
 
-export interface StreamProxyRule {
-  pattern: string;
-  proxy: string;
-}
-
 export interface AppSettings {
   catalogRefreshCron: string;
   catalogRefreshedAt: string | null;
@@ -118,7 +113,6 @@ export interface AppSettings {
   blockCategories: string;
   blockStreamDomains: string;
   blockNsfw: boolean;
-  streamProxyRules: StreamProxyRule[];
   purgedFromPlaylists?: number;
   version: string;
 }
@@ -140,7 +134,6 @@ export function updateSettings(updates: {
   blockCategories?: string;
   blockStreamDomains?: string;
   blockNsfw?: boolean;
-  streamProxyRules?: StreamProxyRule[];
 }): Promise<AppSettings> {
   return request("/settings", {
     method: "PATCH",
@@ -295,4 +288,62 @@ export function fetchChannelPlaylists(
 
 export function fetchPlaylistMembers(): Promise<{ channelIds: string[] }> {
   return request("/channels/playlistmembers");
+}
+
+export interface VpnEndpoint {
+  id: string;
+  name: string;
+  country: string | null;
+  proxyUrl: string;
+  createdAt: string;
+  lastCheckedAt: string | null;
+  lastStatus: "up" | "down" | null;
+  lastError: string | null;
+  lastExitIp: string | null;
+  channelCount: number;
+}
+
+export function fetchVpnEndpoints(): Promise<{ endpoints: VpnEndpoint[] }> {
+  return request("/vpn-endpoints");
+}
+
+export function createVpnEndpoint(input: {
+  name: string;
+  country: string;
+  proxyUrl: string;
+}): Promise<VpnEndpoint> {
+  return request("/vpn-endpoints", { method: "POST", body: JSON.stringify(input) });
+}
+
+export function updateVpnEndpoint(
+  id: string,
+  updates: { name?: string; country?: string; proxyUrl?: string }
+): Promise<VpnEndpoint> {
+  return request(`/vpn-endpoints/${id}`, { method: "PATCH", body: JSON.stringify(updates) });
+}
+
+export function deleteVpnEndpoint(id: string): Promise<{ ok: boolean }> {
+  return request(`/vpn-endpoints/${id}`, { method: "DELETE" });
+}
+
+export function checkVpnEndpoint(id: string): Promise<VpnEndpoint> {
+  return request(`/vpn-endpoints/${id}/check`, { method: "POST" });
+}
+
+export function fetchChannelVpnAssignments(): Promise<{ assignments: Record<string, string> }> {
+  return request("/channels/vpn-assignments");
+}
+
+export function assignChannelVpn(
+  channelId: string,
+  vpnEndpointId: string
+): Promise<{ ok: boolean }> {
+  return request(`/channels/${channelId}/vpn`, {
+    method: "PUT",
+    body: JSON.stringify({ vpnEndpointId }),
+  });
+}
+
+export function unassignChannelVpn(channelId: string): Promise<{ ok: boolean }> {
+  return request(`/channels/${channelId}/vpn`, { method: "DELETE" });
 }

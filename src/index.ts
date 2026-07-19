@@ -9,9 +9,11 @@ import { settingsRouter } from "./routes/settings";
 import { notificationsRouter } from "./routes/notifications";
 import { backupRouter } from "./routes/backup";
 import { streamProxyRouter } from "./routes/streamProxy";
+import { vpnEndpointsRouter } from "./routes/vpnEndpoints";
 import { refreshCatalog, getChannels } from "./services/catalogService";
 import { startSchedulers, regenerateEpgChannelsFile } from "./services/epgSchedulerService";
 import { startFeedTestScheduler } from "./services/feedTestScheduler";
+import { startVpnHealthScheduler, checkAllVpnEndpoints } from "./services/vpnEndpointService";
 import { getMeta } from "./db";
 import { createLogger, activeLogLevel } from "./logger";
 import { requestLogger } from "./middleware/requestLogger";
@@ -38,6 +40,7 @@ app.use("/api", settingsRouter);
 app.use("/api", notificationsRouter);
 app.use("/api", backupRouter);
 app.use("/api", streamProxyRouter);
+app.use("/api", vpnEndpointsRouter);
 
 // The actual M3U/EPG file URLs handed to Channels DVR and VLC stay
 // unprefixed at the root path — these are "product" URLs meant to be
@@ -80,6 +83,10 @@ async function bootstrap() {
   regenerateEpgChannelsFile();
   startSchedulers();
   startFeedTestScheduler();
+  startVpnHealthScheduler();
+  checkAllVpnEndpoints().catch((err) =>
+    log.error("initial vpn endpoint health check failed", { error: (err as Error).message })
+  );
 
   app.listen(PORT, () => {
     log.info(`iptv-catalog-api listening on port ${PORT}`);

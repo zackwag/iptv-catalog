@@ -88,6 +88,25 @@ db.exec(`
   );
 
   CREATE INDEX IF NOT EXISTS idx_channel_streams_channel ON channel_streams(channelId, sortOrder);
+
+  CREATE TABLE IF NOT EXISTS vpn_endpoints (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    country TEXT,
+    proxyUrl TEXT NOT NULL,
+    createdAt TEXT NOT NULL,
+    lastCheckedAt TEXT,
+    lastStatus TEXT,
+    lastError TEXT,
+    lastExitIp TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS channel_vpn_assignments (
+    channelId TEXT PRIMARY KEY REFERENCES channels(id) ON DELETE CASCADE,
+    vpnEndpointId TEXT NOT NULL REFERENCES vpn_endpoints(id) ON DELETE CASCADE
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_channel_vpn_assignments_endpoint ON channel_vpn_assignments(vpnEndpointId);
 `);
 
 // --- FTS5 virtual table for fast channel name search ---

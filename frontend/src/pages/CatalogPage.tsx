@@ -9,6 +9,7 @@ import {
   updatePlaylist,
   blockChannel,
   fetchPlaylistMembers,
+  fetchChannelVpnAssignments,
 } from "../api";
 import { Channel, ChannelFilters } from "../types";
 import Filters from "../components/Filters";
@@ -40,6 +41,7 @@ export default function CatalogPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [selectedChannels, setSelectedChannels] = useState<Map<string, Channel>>(new Map());
   const [playlistMemberIds, setPlaylistMemberIds] = useState<Set<string>>(new Set());
+  const [vpnAssignments, setVpnAssignments] = useState<Record<string, string>>({});
   const [pageSize, setPageSize] = useState(() => {
     const saved = localStorage.getItem("catalogPageSize");
     const n = saved ? Number(saved) : NaN;
@@ -57,7 +59,19 @@ export default function CatalogPage() {
     fetchPlaylistMembers()
       .then((r) => setPlaylistMemberIds(new Set(r.channelIds)))
       .catch(() => {});
+    fetchChannelVpnAssignments()
+      .then((r) => setVpnAssignments(r.assignments))
+      .catch(() => {});
   }, []);
+
+  function handleVpnAssignmentChange(channelId: string, vpnEndpointId: string | null) {
+    setVpnAssignments((prev) => {
+      const next = { ...prev };
+      if (vpnEndpointId) next[channelId] = vpnEndpointId;
+      else delete next[channelId];
+      return next;
+    });
+  }
 
   useEffect(() => {
     fetchCountries({
@@ -290,6 +304,7 @@ export default function CatalogPage() {
             selectedIds={selectedIds}
             selectedChannels={selectedChannels}
             playlistMemberIds={playlistMemberIds}
+            vpnRoutedIds={new Set(Object.keys(vpnAssignments))}
             filters={filters}
             onToggle={toggle}
             onToggleAll={toggleAll}
@@ -421,6 +436,8 @@ export default function CatalogPage() {
           onToggle={toggle}
           onClose={() => setDetailChannel(null)}
           onBlock={handleBlock}
+          vpnEndpointId={vpnAssignments[detailChannel.id]}
+          onVpnAssignmentChange={handleVpnAssignmentChange}
         />
       )}
 

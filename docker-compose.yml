@@ -1,0 +1,82 @@
+services:
+  app:
+    build: .
+    container_name: iptv-catalog
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - iptv-data:/app/data
+      - epg-shared:/app/epg-shared
+    environment:
+      - TZ=${TZ:-UTC}
+    # Uncomment if you enable the VPN sidecars below and want the app to wait
+    # for them to be reachable before it starts routing channels through them.
+    # depends_on:
+    #   - gluetun-uk
+    #   - gluetun-us
+
+  epg:
+    image: ghcr.io/iptv-org/epg:master
+    container_name: iptv-catalog-epg
+    restart: unless-stopped
+    command: --channels=/app/epg-shared/channels.xml --output=/app/epg-shared/guide.xml --cron="0 */6 * * *"
+    volumes:
+      - epg-shared:/app/epg-shared
+    environment:
+      - TZ=${TZ:-UTC}
+
+  # --- Optional: per-country VPN sidecars for geo-routing selected channels ---
+  #
+  # Each of these runs gluetun (https://github.com/qmcgaw/gluetun), which connects to a VPN
+  # provider's server in a given country and exposes a local HTTP CONNECT proxy for other
+  # containers on this network. Once one of these is running, register it in the app under
+  # Settings -> "VPN / geo-proxy endpoints" with a proxy URL like http://gluetun-uk:8888, then
+  # assign specific channels to it from the channel detail modal in Browse Channels.
+  #
+  # Disabled by default (profile: vpn) so `docker compose up` doesn't fail for anyone who hasn't
+  # filled in VPN credentials yet. Enable with: docker compose --profile vpn up -d
+  #
+  # Fill in VPN_SERVICE_PROVIDER and the provider-specific auth vars for your VPN service — see
+  # https://github.com/qmcgaw/gluetun/wiki for the full list of supported providers and options.
+  gluetun-uk:
+    image: qmcgaw/gluetun
+    container_name: gluetun-uk
+    restart: unless-stopped
+    profiles: ["vpn"]
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      - VPN_SERVICE_PROVIDER=changeme
+      - VPN_TYPE=wireguard
+      - SERVER_COUNTRIES=United Kingdom
+      - HTTPPROXY=on
+      - HTTPPROXY_LISTENING_ADDRESS=:8888
+      - TZ=${TZ:-UTC}
+      # - WIREGUARD_PRIVATE_KEY=changeme
+      # - WIREGUARD_ADDRESSES=changeme
+
+  gluetun-us:
+    image: qmcgaw/gluetun
+    container_name: gluetun-us
+    restart: unless-stopped
+    profiles: ["vpn"]
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      - VPN_SERVICE_PROVIDER=changeme
+      - VPN_TYPE=wireguard
+      - SERVER_COUNTRIES=United States
+      - HTTPPROXY=on
+      - HTTPPROXY_LISTENING_ADDRESS=:8888
+      - TZ=${TZ:-UTC}
+      # - WIREGUARD_PRIVATE_KEY=changeme
+      # - WIREGUARD_ADDRESSES=changeme
+
+volumes:
+  iptv-data:
+  epg-shared:

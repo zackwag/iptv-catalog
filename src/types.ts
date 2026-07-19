@@ -15,9 +15,17 @@ export interface Channel {
   updatedAt: string;
 }
 
-export interface StreamProxyRule {
-  pattern: string; // substring matched against stream URL
-  proxy: string; // http(s)://host:port or socks5://host:port
+export interface VpnEndpoint {
+  id: string;
+  name: string;
+  country: string | null;
+  proxyUrl: string; // http(s)://host:port or socks5://host:port — typically a VPN sidecar container
+  createdAt: string;
+  lastCheckedAt: string | null;
+  lastStatus: "up" | "down" | null; // null = never checked
+  lastError: string | null;
+  lastExitIp: string | null;
+  channelCount?: number; // populated by the list endpoint, not stored
 }
 
 export interface ChannelFilters {
