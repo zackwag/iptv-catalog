@@ -13,7 +13,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx}\""
   },
   "dependencies": {
-    "cronstrue": "^2.59.0",
+    "cronstrue": "^3.24.0",
     "hls.js": "^1.6.16",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
