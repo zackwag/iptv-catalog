@@ -1,5 +1,5 @@
 # --- frontend builder ---
-FROM node:20-alpine AS frontend-builder
+FROM node:26-alpine AS frontend-builder
 
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/package-lock.json* ./
@@ -10,7 +10,7 @@ COPY frontend/src ./src
 RUN npm run build
 
 # --- backend builder ---
-FROM node:20-alpine AS backend-builder
+FROM node:26-alpine AS backend-builder
 
 WORKDIR /app
 
@@ -25,7 +25,7 @@ COPY src ./src
 RUN npm run build
 
 # --- runtime ---
-FROM node:20-alpine AS runtime
+FROM node:26-alpine AS runtime
 
 WORKDIR /app
 RUN apk add --no-cache python3 make g++ tzdata
