@@ -14,7 +14,9 @@
 // directly, since a type-only import of a named export from an ESM-only
 // package requires an explicit resolution-mode attribute under this
 // project's CommonJS module setting.
-type NodeFetchDefault = typeof import("node-fetch", { with: { "resolution-mode": "import" } }).default;
+type NodeFetchDefault = typeof import("node-fetch", {
+  with: { "resolution-mode": "import" },
+}).default;
 type NodeFetchRequestInfo = Parameters<NodeFetchDefault>[0];
 type NodeFetchRequestInit = Parameters<NodeFetchDefault>[1];
 type NodeFetchResponse = Awaited<ReturnType<NodeFetchDefault>>;
