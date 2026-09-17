@@ -1,5 +1,38 @@
 # Changelog
 
+## [1.1.0](https://github.com/zackwag/iptv-catalog/compare/iptv-catalog-api-v1.0.13...iptv-catalog-api-v1.1.0) (2026-09-17)
+
+
+### Features
+
+* Adding Linting ([84d7f79](https://github.com/zackwag/iptv-catalog/commit/84d7f794ed953073c3e9029634a5a95041149d05))
+* channel number assignment toggle, ESLint/Prettier/Husky setup, fix CI Node version and lock files ([36f33ae](https://github.com/zackwag/iptv-catalog/commit/36f33ae1069b122600b8397419ffacce36fdbd6c))
+* channel number assignment toggle, ESLint/Prettier/Husky setup, fix CI Node version and lock files ([e22e1dd](https://github.com/zackwag/iptv-catalog/commit/e22e1dd67fb257be256827bda03301045a2b6a9b))
+* **ci:** adopt release-please ([#52](https://github.com/zackwag/iptv-catalog/issues/52)) ([7db9773](https://github.com/zackwag/iptv-catalog/commit/7db9773e2a87e6fdf93af6aca38b6f9fb5c4ad53))
+* pin selected channels to top of table across pages ([614a400](https://github.com/zackwag/iptv-catalog/commit/614a400747c3ac4b794d7e51983468d7e75f06be))
+* playlist membership indicator and quick-add from channel detail ([a233ec6](https://github.com/zackwag/iptv-catalog/commit/a233ec6297c387a33c3ad540c2de4d9b5346c64c))
+* searchable country blocklist, normalize blocked tag display ([1487c65](https://github.com/zackwag/iptv-catalog/commit/1487c65926a235926e3c1874710042557492ac0e))
+* searchable multi-select for block categories (matches country block UX) ([39b94cf](https://github.com/zackwag/iptv-catalog/commit/39b94cfc1ea56315d62625a996d3fa4b61e69fb3))
+* stream proxy rules — route matching streams through a proxy ([194dde6](https://github.com/zackwag/iptv-catalog/commit/194dde6d50f913653b37d26c2605ff8059bb11fe))
+
+
+### Bug Fixes
+
+* add ES2022.Error lib for Error cause support ([51db4eb](https://github.com/zackwag/iptv-catalog/commit/51db4eb6bae9c0763f900b10137fbf4a05ecf613))
+* four bugs from code review ([ba562cb](https://github.com/zackwag/iptv-catalog/commit/ba562cbf879468142bb32fcd4f9f9ca64e21fefa))
+* guard husky prepare script without external dependency ([2449591](https://github.com/zackwag/iptv-catalog/commit/2449591d48986e1f65d5b299a293f3b3b3c96a71))
+* Manually seeding node version ([8f7df68](https://github.com/zackwag/iptv-catalog/commit/8f7df68f259a772868e5ce333d21ded2226499d8))
+* prevent iOS Safari auto-zoom on input focus ([8a5978f](https://github.com/zackwag/iptv-catalog/commit/8a5978fb8c50ff8be87bc6df5e6f4cb8f063a030))
+* push-to-dvr type HLS, add Docker Hub publish workflow ([fa5e885](https://github.com/zackwag/iptv-catalog/commit/fa5e885a677dcad6d132e44709821c6eec2b7826))
+* push-to-dvr type HLS, add Docker Hub publish workflow ([ab2e1b0](https://github.com/zackwag/iptv-catalog/commit/ab2e1b0a92ad09693c4e91dca4432c351f07ae14))
+* remove invalid FTS5 upsert ([baabe40](https://github.com/zackwag/iptv-catalog/commit/baabe40fb7d604343a701cbc03005a28975565e1))
+* remove invalid FTS5 upsert ([ea8c63d](https://github.com/zackwag/iptv-catalog/commit/ea8c63ddf91f04303e54d31491e59b80d1e7e503))
+* skip husky in CI and Docker builds ([d22667c](https://github.com/zackwag/iptv-catalog/commit/d22667cd83c6f056d73e8d85005ad04faff2980d))
+* Updating release script ([a24c14a](https://github.com/zackwag/iptv-catalog/commit/a24c14aaf403df36699ddad745af6fd0c64d5c61))
+* use FTS5 rebuild command to prevent index corruption ([c1a4eec](https://github.com/zackwag/iptv-catalog/commit/c1a4eecb76169e58619ba0cc59f2cd111836c0d8))
+* use FTS5 rebuild command to prevent index corruption ([9c23be5](https://github.com/zackwag/iptv-catalog/commit/9c23be534e5824d704daa3a00f06d7f43f3cf26f))
+* use FTS5 rebuild command to prevent index corruption ([26097f3](https://github.com/zackwag/iptv-catalog/commit/26097f3098f16325ddfc533764d4b6e4e30a62a2))
+
 ## [1.0.13] - 2026-07-19
 
 - Add named VPN/geo-proxy endpoints with per-channel routing (#2)
@@ -72,5 +105,3 @@
 - fix: remove invalid FTS5 upsert
 - fix: push-to-dvr type HLS, add Docker Hub publish workflow
 - fix: remove invalid FTS5 upsert
-
-
