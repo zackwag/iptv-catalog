@@ -1,5 +1,5 @@
-import fetch from "node-fetch";
-import { v4 as uuidv4 } from "uuid";
+import { fetch } from "../utils/fetch";
+import { randomUUID as uuidv4 } from "node:crypto";
 import { db } from "../db";
 import { getPlaylist } from "./playlistService";
 import { getFallbackStreams, promoteStream } from "./catalogService";

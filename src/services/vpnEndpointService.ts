@@ -1,7 +1,5 @@
-import { v4 as uuidv4 } from "uuid";
-import fetch from "node-fetch";
-import { HttpsProxyAgent } from "https-proxy-agent";
-import { SocksProxyAgent } from "socks-proxy-agent";
+import { randomUUID as uuidv4 } from "node:crypto";
+import { fetch } from "../utils/fetch";
 import cron from "node-cron";
 import { db } from "../db";
 import { VpnEndpoint } from "../types";
@@ -25,11 +23,17 @@ function isValidProxyUrl(value: string): boolean {
   }
 }
 
+// https-proxy-agent/socks-proxy-agent are ESM-only (no CommonJS export), so
+// they can't be statically imported from this CommonJS-compiled backend --
+// see src/utils/fetch.ts for the same situation with node-fetch.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function agentForProxyUrl(proxyUrl: string): any {
-  return proxyUrl.startsWith("socks")
-    ? new SocksProxyAgent(proxyUrl)
-    : new HttpsProxyAgent(proxyUrl);
+export async function agentForProxyUrl(proxyUrl: string): Promise<any> {
+  if (proxyUrl.startsWith("socks")) {
+    const { SocksProxyAgent } = await import("socks-proxy-agent");
+    return new SocksProxyAgent(proxyUrl);
+  }
+  const { HttpsProxyAgent } = await import("https-proxy-agent");
+  return new HttpsProxyAgent(proxyUrl);
 }
 
 interface VpnEndpointRow {
@@ -146,7 +150,7 @@ export async function checkVpnEndpoint(id: string): Promise<VpnEndpoint> {
   const timeout = setTimeout(() => controller.abort(), HEALTH_CHECK_TIMEOUT_MS);
 
   try {
-    const agent = agentForProxyUrl(endpoint.proxyUrl);
+    const agent = await agentForProxyUrl(endpoint.proxyUrl);
     const upstream = await fetch(HEALTH_CHECK_URL, { agent, signal: controller.signal });
     if (!upstream.ok) throw new Error(`upstream returned ${upstream.status}`);
 

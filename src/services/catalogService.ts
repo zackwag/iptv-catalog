@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+import { fetch } from "../utils/fetch";
 import { db, setMeta } from "../db";
 import { ChannelFilters, Channel, RawChannel, RawStream, RawGuide } from "../types";
 import { loadSettings } from "./settingsService";
