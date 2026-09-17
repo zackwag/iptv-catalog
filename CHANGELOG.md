@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.3.0](https://github.com/zackwag/iptv-catalog/compare/v1.2.0...v1.3.0) (2026-09-17)
+
+
+### Features
+
+* **test:** add a real test suite ([#60](https://github.com/zackwag/iptv-catalog/issues/60)) ([1da29fd](https://github.com/zackwag/iptv-catalog/commit/1da29fd88139eeeca72748449601cd9185bd9502))
+* **test:** add a real test suite (closes [#59](https://github.com/zackwag/iptv-catalog/issues/59)) ([1da29fd](https://github.com/zackwag/iptv-catalog/commit/1da29fd88139eeeca72748449601cd9185bd9502))
+
+
+### Bug Fixes
+
+* **ci:** name the test job Test to match this account's convention ([#62](https://github.com/zackwag/iptv-catalog/issues/62)) ([6c677a2](https://github.com/zackwag/iptv-catalog/commit/6c677a29476aca55f4d4db97d41f4b21eec01651))
+
 ## [1.2.0](https://github.com/zackwag/iptv-catalog/compare/v1.1.1...v1.2.0) (2026-09-17)
 
 
