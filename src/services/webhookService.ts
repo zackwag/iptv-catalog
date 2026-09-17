@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+import { fetch } from "../utils/fetch";
 import { loadSettings } from "./settingsService";
 import { createLogger } from "../logger";
 

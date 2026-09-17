@@ -1,5 +1,5 @@
 import { Router } from "express";
-import fetch from "node-fetch";
+import { fetch } from "../utils/fetch";
 import { getChannelVpnEndpoint, agentForProxyUrl } from "../services/vpnEndpointService";
 import { createLogger } from "../logger";
 
@@ -21,7 +21,7 @@ streamProxyRouter.get("/stream-proxy", async (req, res) => {
 
   try {
     const endpoint = typeof channelId === "string" ? getChannelVpnEndpoint(channelId) : null;
-    const agent = endpoint ? agentForProxyUrl(endpoint.proxyUrl) : undefined;
+    const agent = endpoint ? await agentForProxyUrl(endpoint.proxyUrl) : undefined;
     const upstream = await fetch(url, {
       agent,
       headers: {
