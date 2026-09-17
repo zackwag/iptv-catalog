@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/zackwag/iptv-catalog/compare/iptv-catalog-api-v1.1.0...iptv-catalog-api-v1.1.1) (2026-09-17)
+
+
+### Bug Fixes
+
+* **ci:** use RELEASE_PLEASE_TOKEN so releases trigger downstream workflows ([#54](https://github.com/zackwag/iptv-catalog/issues/54)) ([c6e17c0](https://github.com/zackwag/iptv-catalog/commit/c6e17c08e521c265174cd579d5a76ab186623039))
+
 ## [1.1.0](https://github.com/zackwag/iptv-catalog/compare/iptv-catalog-api-v1.0.13...iptv-catalog-api-v1.1.0) (2026-09-17)
 
 
