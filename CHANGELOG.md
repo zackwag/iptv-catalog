@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/zackwag/iptv-catalog/compare/v1.3.0...v1.3.1) (2026-09-19)
+
+
+### Bug Fixes
+
+* **server:** use named wildcard for SPA fallback route ([#63](https://github.com/zackwag/iptv-catalog/issues/63)) ([6a07800](https://github.com/zackwag/iptv-catalog/commit/6a078008893308099194000975e85468ddf82cd4))
+
 ## [1.3.0](https://github.com/zackwag/iptv-catalog/compare/v1.2.0...v1.3.0) (2026-09-17)
 
 
