@@ -54,7 +54,7 @@ app.use(publicPlaylistFilesRouter);
 const PUBLIC_DIR = path.join(__dirname, "../public");
 if (fs.existsSync(PUBLIC_DIR)) {
   app.use(express.static(PUBLIC_DIR));
-  app.get("*", (_req, res) => {
+  app.get("/*splat", (_req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, "index.html"));
   });
 } else {
