@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/zackwag/iptv-catalog/compare/v1.3.1...v1.4.0) (2026-09-22)
+
+
+### Features
+
+* add manual fallback feed switching and fix copy button ([#65](https://github.com/zackwag/iptv-catalog/issues/65)) ([5d083d4](https://github.com/zackwag/iptv-catalog/commit/5d083d4aa45d0587bb175e3034453ff029435204))
+
 ## [1.3.1](https://github.com/zackwag/iptv-catalog/compare/v1.3.0...v1.3.1) (2026-09-19)
 
 
