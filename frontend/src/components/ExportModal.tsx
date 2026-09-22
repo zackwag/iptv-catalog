@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { pushPlaylistToDvr } from "../api";
+import { copyText } from "../clipboard";
 
 interface Props {
   playlistId: string;
@@ -21,11 +22,11 @@ function CopyRow({
 }) {
   const [copied, setCopied] = useState(false);
 
-  function copy() {
-    navigator.clipboard.writeText(value).then(() => {
+  async function copy() {
+    if (await copyText(value)) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    });
+    }
   }
 
   return (

@@ -6,6 +6,7 @@ import {
   getDistinctCategories,
   refreshCatalog,
   purgeBlocklistedFromPlaylists,
+  promoteStream,
 } from "../services/catalogService";
 import { regenerateEpgChannelsFile } from "../services/epgSchedulerService";
 import {
@@ -122,6 +123,34 @@ channelsRouter.get("/channels/:id/streams", (req, res) => {
     )
     .all(req.params.id) as { url: string; quality: string | null; sortOrder: number }[];
   res.json({ streams });
+});
+
+// POST /channels/:id/streams/promote  { url } — make a known stream URL the primary feed
+channelsRouter.post("/channels/:id/streams/promote", (req, res) => {
+  const { id } = req.params;
+  const { url } = req.body ?? {};
+  if (typeof url !== "string" || !url.trim()) {
+    return res.status(400).json({ error: "url is required" });
+  }
+
+  const channel = db.prepare("SELECT id, streamUrl FROM channels WHERE id = ?").get(id) as
+    { id: string; streamUrl: string | null } | undefined;
+  if (!channel) return res.status(404).json({ error: "channel not found" });
+
+  const known = db
+    .prepare("SELECT 1 FROM channel_streams WHERE channelId = ? AND url = ?")
+    .get(id, url);
+  if (!known && url !== channel.streamUrl) {
+    return res.status(400).json({ error: "url is not a known stream for this channel" });
+  }
+
+  promoteStream(id, url);
+  const updated = db
+    .prepare("SELECT streamUrl, streamQuality FROM channels WHERE id = ?")
+    .get(id) as { streamUrl: string | null; streamQuality: string | null };
+
+  log.info(`promoted stream for channel ${id}`, { url });
+  res.json({ ok: true, streamUrl: updated.streamUrl, streamQuality: updated.streamQuality });
 });
 
 // GET /channels/blocked — list all individually blocked channels

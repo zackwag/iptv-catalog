@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Channel, Playlist } from "../types";
 import { countryName, countryFlag, titleCase } from "../textFormat";
+import { copyText } from "../clipboard";
 import StreamPreview from "./StreamPreview";
 import {
   fetchChannelStreams,
@@ -10,6 +11,7 @@ import {
   fetchVpnEndpoints,
   assignChannelVpn,
   unassignChannelVpn,
+  promoteChannelStream,
   VpnEndpoint,
 } from "../api";
 
@@ -21,6 +23,7 @@ interface Props {
   onBlock: (channel: Channel) => void;
   vpnEndpointId?: string;
   onVpnAssignmentChange?: (channelId: string, vpnEndpointId: string | null) => void;
+  onStreamPromoted?: (channelId: string, streamUrl: string, streamQuality: string | null) => void;
 }
 
 function initials(name: string): string {
@@ -45,6 +48,7 @@ export default function ChannelDetailModal({
   onBlock,
   vpnEndpointId,
   onVpnAssignmentChange,
+  onStreamPromoted,
 }: Props) {
   const [showPreview, setShowPreview] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -56,8 +60,15 @@ export default function ChannelDetailModal({
   const [addingToPlaylist, setAddingToPlaylist] = useState(false);
   const [vpnEndpoints, setVpnEndpoints] = useState<VpnEndpoint[]>([]);
   const [savingVpnAssignment, setSavingVpnAssignment] = useState(false);
+  const [activeStreamUrl, setActiveStreamUrl] = useState(channel.streamUrl ?? null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [promotingUrl, setPromotingUrl] = useState<string | null>(null);
+  const [promoteError, setPromoteError] = useState<string | null>(null);
 
   useEffect(() => {
+    setActiveStreamUrl(channel.streamUrl ?? null);
+    setPreviewUrl(null);
+    setPromoteError(null);
     fetchChannelStreams(channel.id)
       .then((r) => setStreams(r.streams))
       .catch(() => {});
@@ -89,6 +100,20 @@ export default function ChannelDetailModal({
     }
   }
 
+  async function handlePromote(url: string) {
+    setPromotingUrl(url);
+    setPromoteError(null);
+    try {
+      const r = await promoteChannelStream(channel.id, url);
+      setActiveStreamUrl(r.streamUrl);
+      onStreamPromoted?.(channel.id, r.streamUrl as string, r.streamQuality);
+    } catch (err) {
+      setPromoteError(err instanceof Error ? err.message : "Failed to switch feed");
+    } finally {
+      setPromotingUrl(null);
+    }
+  }
+
   async function handleAddToPlaylist(playlistId: string) {
     setAddingToPlaylist(true);
     try {
@@ -103,17 +128,25 @@ export default function ChannelDetailModal({
     }
   }
 
-  function copyUrl() {
-    navigator.clipboard.writeText(channel.streamUrl!);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+  async function copyUrl() {
+    if (!activeStreamUrl) return;
+    if (await copyText(activeStreamUrl)) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
   }
 
   const categories = channel.categories
     ? channel.categories.split(",").filter(Boolean).map(titleCase)
     : [];
 
-  const fallbackCount = streams.filter((s) => s.url !== channel.streamUrl).length;
+  // The primary feed may not (yet) appear in channel_streams — e.g. right
+  // after a manual DB edit — so make sure it's always represented as a row.
+  const feedList =
+    activeStreamUrl && !streams.some((s) => s.url === activeStreamUrl)
+      ? [{ url: activeStreamUrl, quality: channel.streamQuality, sortOrder: -1 }, ...streams]
+      : streams;
+  const fallbackCount = feedList.filter((s) => s.url !== activeStreamUrl).length;
 
   return (
     <div className="iptv-dialog-overlay" onClick={onClose}>
@@ -195,7 +228,7 @@ export default function ChannelDetailModal({
             <div className="meta" style={{ marginBottom: 4 }}>
               Stream
             </div>
-            {channel.streamUrl ? (
+            {activeStreamUrl ? (
               <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                 <span className="badge stream">Available</span>
                 {channel.streamQuality && (
@@ -313,28 +346,127 @@ export default function ChannelDetailModal({
           </div>
         )}
 
-        {channel.streamUrl && (
-          <>
-            {showPreview ? (
-              <StreamPreview streamUrl={channel.streamUrl} channelId={channel.id} />
-            ) : (
-              <div style={{ marginBottom: 16 }}>
+        {feedList.length > 0 && (
+          <div style={{ marginBottom: 16 }}>
+            <div className="meta" style={{ marginBottom: 4 }}>
+              Feeds ({feedList.length})
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 4,
+                marginBottom: 10,
+                maxHeight: 160,
+                overflowY: "auto",
+              }}
+            >
+              {feedList.map((s) => {
+                const isActive = s.url === activeStreamUrl;
+                const isSelected = s.url === (previewUrl ?? activeStreamUrl);
+                return (
+                  <label
+                    key={s.url}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      padding: "6px 8px",
+                      borderRadius: 6,
+                      background: isSelected ? "var(--accent-dim)" : "var(--panel)",
+                      border: "1px solid var(--border)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="feed"
+                      checked={isSelected}
+                      onChange={() => {
+                        setPreviewUrl(s.url);
+                        setShowPreview(true);
+                      }}
+                      style={{ flexShrink: 0 }}
+                    />
+                    <code
+                      style={{
+                        fontSize: 11,
+                        flex: 1,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                      title={s.url}
+                    >
+                      {s.url}
+                    </code>
+                    {s.quality && (
+                      <span className="badge" style={{ fontSize: 10, flexShrink: 0 }}>
+                        {qualityLabel(s.quality)}
+                      </span>
+                    )}
+                    {isActive && (
+                      <span
+                        className="badge"
+                        style={{
+                          background: "#1e2a1a",
+                          color: "#7fc87a",
+                          fontSize: 10,
+                          flexShrink: 0,
+                        }}
+                      >
+                        PRIMARY
+                      </span>
+                    )}
+                  </label>
+                );
+              })}
+            </div>
+
+            {(previewUrl ?? activeStreamUrl) && showPreview && (
+              <StreamPreview
+                streamUrl={(previewUrl ?? activeStreamUrl) as string}
+                channelId={channel.id}
+              />
+            )}
+
+            <div style={{ display: "flex", gap: 8 }}>
+              <button
+                className="secondary"
+                style={{ flex: 1 }}
+                onClick={() => setShowPreview((v) => !v)}
+                disabled={!(previewUrl ?? activeStreamUrl)}
+              >
+                {showPreview ? "Hide preview" : "▶ Preview selected feed"}
+              </button>
+              <button
+                className="primary"
+                style={{ flex: 1 }}
+                disabled={!previewUrl || previewUrl === activeStreamUrl || promotingUrl !== null}
+                onClick={() => previewUrl && handlePromote(previewUrl)}
+              >
+                {promotingUrl ? "Switching…" : "Use this feed"}
+              </button>
+            </div>
+            {promoteError && (
+              <div className="meta" style={{ color: "#f16c6c", marginTop: 6, fontSize: 11 }}>
+                {promoteError}
+              </div>
+            )}
+
+            {activeStreamUrl && (
+              <div className="url-field" style={{ marginTop: 10 }}>
+                <code style={{ fontSize: 11 }}>{activeStreamUrl}</code>
                 <button
-                  className="secondary"
-                  style={{ width: "100%" }}
-                  onClick={() => setShowPreview(true)}
+                  className="icon-link"
+                  style={{ padding: 0, flexShrink: 0 }}
+                  onClick={copyUrl}
                 >
-                  ▶ Preview stream
+                  {copied ? "Copied!" : "Copy"}
                 </button>
               </div>
             )}
-            <div className="url-field" style={{ marginBottom: 16 }}>
-              <code style={{ fontSize: 11 }}>{channel.streamUrl}</code>
-              <button className="icon-link" style={{ padding: 0, flexShrink: 0 }} onClick={copyUrl}>
-                {copied ? "Copied!" : "Copy"}
-              </button>
-            </div>
-          </>
+          </div>
         )}
 
         <div className="actions" style={{ justifyContent: "stretch" }}>
