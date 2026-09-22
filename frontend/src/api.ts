@@ -280,6 +280,16 @@ export function fetchChannelStreams(
   return request(`/channels/${id}/streams`);
 }
 
+export function promoteChannelStream(
+  channelId: string,
+  url: string
+): Promise<{ ok: boolean; streamUrl: string | null; streamQuality: string | null }> {
+  return request(`/channels/${channelId}/streams/promote`, {
+    method: "POST",
+    body: JSON.stringify({ url }),
+  });
+}
+
 export function fetchChannelPlaylists(
   id: string
 ): Promise<{ playlists: { id: string; name: string }[] }> {

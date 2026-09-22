@@ -1,1 +1,1 @@
-/usr/local/bin/node node_modules/.bin/lint-staged
+npx lint-staged

@@ -73,6 +73,24 @@ export default function CatalogPage() {
     });
   }
 
+  function handleStreamPromoted(
+    channelId: string,
+    streamUrl: string,
+    streamQuality: string | null
+  ) {
+    const patch = (c: Channel): Channel =>
+      c.id === channelId ? { ...c, streamUrl, streamQuality } : c;
+    setChannels((prev) => prev.map(patch));
+    setSelectedChannels((prev) => {
+      const existing = prev.get(channelId);
+      if (!existing) return prev;
+      const next = new Map(prev);
+      next.set(channelId, patch(existing));
+      return next;
+    });
+    setDetailChannel((prev) => (prev && prev.id === channelId ? patch(prev) : prev));
+  }
+
   useEffect(() => {
     fetchCountries({
       search: filters.search,
@@ -438,6 +456,7 @@ export default function CatalogPage() {
           onBlock={handleBlock}
           vpnEndpointId={vpnAssignments[detailChannel.id]}
           onVpnAssignmentChange={handleVpnAssignmentChange}
+          onStreamPromoted={handleStreamPromoted}
         />
       )}
 
