@@ -1,5 +1,42 @@
 # Changelog
 
+## [1.4.1](https://github.com/zackwag/iptv-catalog/compare/v1.4.0...v1.4.1) (2026-10-10)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump @types/node from 26.5.1 to 26.6.2 ([#75](https://github.com/zackwag/iptv-catalog/issues/75)) ([d9d6755](https://github.com/zackwag/iptv-catalog/commit/d9d6755f82da4e3dbad2ea3c4f2a44c4783ae512))
+* **deps-dev:** bump @types/node from 26.6.2 to 26.6.4 ([#88](https://github.com/zackwag/iptv-catalog/issues/88)) ([f2d9654](https://github.com/zackwag/iptv-catalog/commit/f2d9654a6c7f07fd9ff62e3c5d2bf80ebb9d0183))
+* **deps-dev:** bump brace-expansion from 5.0.7 to 5.0.12 in /frontend ([#85](https://github.com/zackwag/iptv-catalog/issues/85)) ([f50045b](https://github.com/zackwag/iptv-catalog/commit/f50045b97221bf5fce4c5d6662ddc4fd59556415))
+* **deps-dev:** bump eslint from 10.10.0 to 10.11.0 ([#70](https://github.com/zackwag/iptv-catalog/issues/70)) ([b6bd6b8](https://github.com/zackwag/iptv-catalog/commit/b6bd6b8b34abf74b210b8747a875fdd4f60d553e))
+* **deps-dev:** bump eslint from 10.10.0 to 10.11.0 in /frontend ([#76](https://github.com/zackwag/iptv-catalog/issues/76)) ([aaf7bf0](https://github.com/zackwag/iptv-catalog/commit/aaf7bf0557ca7bd9df1c392157aed60b53889bd1))
+* **deps-dev:** bump eslint from 10.11.0 to 10.12.0 ([#87](https://github.com/zackwag/iptv-catalog/issues/87)) ([6eaf5f5](https://github.com/zackwag/iptv-catalog/commit/6eaf5f5243128e07a8f4853220d81095ba798b6d))
+* **deps-dev:** bump eslint from 10.11.0 to 10.12.0 in /frontend ([#91](https://github.com/zackwag/iptv-catalog/issues/91)) ([4983b3a](https://github.com/zackwag/iptv-catalog/commit/4983b3abc7f4bb124db5bb892c7e3af650865818))
+* **deps-dev:** bump lint-staged from 17.5.1 to 17.6.0 ([#79](https://github.com/zackwag/iptv-catalog/issues/79)) ([a4d21d8](https://github.com/zackwag/iptv-catalog/commit/a4d21d8b318b001d1db9e6e935e9359ce1157530))
+* **deps-dev:** bump prettier from 3.9.6 to 3.9.8 ([#72](https://github.com/zackwag/iptv-catalog/issues/72)) ([e5797a4](https://github.com/zackwag/iptv-catalog/commit/e5797a4dd38d427f66600a3d073676c893e7df8f))
+* **deps-dev:** bump prettier from 3.9.6 to 3.9.8 in /frontend ([#73](https://github.com/zackwag/iptv-catalog/issues/73)) ([6583f4d](https://github.com/zackwag/iptv-catalog/commit/6583f4d4a653a327e088b24af63e20d2e4fcbd41))
+* **deps-dev:** bump prettier from 3.9.8 to 3.9.9 ([#77](https://github.com/zackwag/iptv-catalog/issues/77)) ([97411c9](https://github.com/zackwag/iptv-catalog/commit/97411c91791f38ff2df416c9f176c421d60907fd))
+* **deps-dev:** bump prettier from 3.9.8 to 3.9.9 in /frontend ([#83](https://github.com/zackwag/iptv-catalog/issues/83)) ([6a99c4c](https://github.com/zackwag/iptv-catalog/commit/6a99c4c6399a0d068c1d7008990c9fbc0a4ebc5a))
+* **deps-dev:** bump source-map-js from 1.2.1 to 1.2.2 ([#96](https://github.com/zackwag/iptv-catalog/issues/96)) ([394a20c](https://github.com/zackwag/iptv-catalog/commit/394a20cba61ddd2f4a597b3a1ca5c0c6b422f2ce))
+* **deps-dev:** bump supertest from 7.2.2 to 7.3.0 ([#82](https://github.com/zackwag/iptv-catalog/issues/82)) ([826e2ad](https://github.com/zackwag/iptv-catalog/commit/826e2ad00f90329be519ac8ac42547daff6cf2c2))
+* **deps-dev:** bump supertest from 7.3.0 to 7.3.1 ([#90](https://github.com/zackwag/iptv-catalog/issues/90)) ([b5b140e](https://github.com/zackwag/iptv-catalog/commit/b5b140e65af381367cc465d08290342a843cf3fa))
+* **deps-dev:** bump typescript-eslint from 8.70.0 to 8.70.1 ([#84](https://github.com/zackwag/iptv-catalog/issues/84)) ([03de32d](https://github.com/zackwag/iptv-catalog/commit/03de32df55d122bffb446e2b5fa22ade1d57b3cd))
+* **deps-dev:** bump typescript-eslint from 8.70.0 to 8.70.1 in /frontend ([#78](https://github.com/zackwag/iptv-catalog/issues/78)) ([b52fde6](https://github.com/zackwag/iptv-catalog/commit/b52fde603f740c0f778eb17d6f26c91f2893a9cb))
+* **deps-dev:** bump typescript-eslint from 8.70.1 to 8.71.0 ([#92](https://github.com/zackwag/iptv-catalog/issues/92)) ([50a849c](https://github.com/zackwag/iptv-catalog/commit/50a849ce80dc9aa441610a6c2d07899df5eca19c))
+* **deps-dev:** bump typescript-eslint from 8.70.1 to 8.71.0 in /frontend ([#89](https://github.com/zackwag/iptv-catalog/issues/89)) ([e44c5be](https://github.com/zackwag/iptv-catalog/commit/e44c5beade91617602caaac62800e52e57ffbdc6))
+* **deps-dev:** bump vite from 8.3.0 to 8.3.1 in /frontend ([#81](https://github.com/zackwag/iptv-catalog/issues/81)) ([d2174d3](https://github.com/zackwag/iptv-catalog/commit/d2174d3d4dc893e5c7a5a5b4254fbac262c6ddbc))
+* **deps-dev:** bump vite from 8.3.1 to 8.3.2 in /frontend ([#93](https://github.com/zackwag/iptv-catalog/issues/93)) ([f7c373f](https://github.com/zackwag/iptv-catalog/commit/f7c373f500a52177e3c0f53d29b85f0b69995df1))
+* **deps-dev:** bump vitest from 5.0.1 to 5.0.2 ([#80](https://github.com/zackwag/iptv-catalog/issues/80)) ([24f5677](https://github.com/zackwag/iptv-catalog/commit/24f5677ea3f1d115a124ae626e96ef474b8c5c0f))
+* **deps-dev:** bump vitest from 5.0.2 to 5.0.3 ([#94](https://github.com/zackwag/iptv-catalog/issues/94)) ([e9bfcd9](https://github.com/zackwag/iptv-catalog/commit/e9bfcd9ee10a6bc8908ecfeb4f7f63c12bcd82d5))
+* **deps:** bump actions/checkout from 4 to 7 ([#67](https://github.com/zackwag/iptv-catalog/issues/67)) ([681c001](https://github.com/zackwag/iptv-catalog/commit/681c001cbe014c9020441d588ceceea74a378061))
+* **deps:** bump amannn/action-semantic-pull-request from 5 to 6 ([#74](https://github.com/zackwag/iptv-catalog/issues/74)) ([6564dba](https://github.com/zackwag/iptv-catalog/commit/6564dba6e89c2579eb8bcf9739e98fdb678c9965))
+* **deps:** bump brace-expansion ([#86](https://github.com/zackwag/iptv-catalog/issues/86)) ([c6b42f4](https://github.com/zackwag/iptv-catalog/commit/c6b42f4d917900cdd8310c6d049814337ccf0977))
+* **deps:** bump cronstrue from 3.26.0 to 3.27.0 in /frontend ([#71](https://github.com/zackwag/iptv-catalog/issues/71)) ([c5909af](https://github.com/zackwag/iptv-catalog/commit/c5909af9c8165e0d6dc13eb78b25477b5e265136))
+* **deps:** bump googleapis/release-please-action from 4 to 5 ([#69](https://github.com/zackwag/iptv-catalog/issues/69)) ([a5af039](https://github.com/zackwag/iptv-catalog/commit/a5af03928635d24515d29f75ce4cf85015fe6bc4))
+* **deps:** bump proxy-addr from 2.0.7 to 2.0.8 ([#97](https://github.com/zackwag/iptv-catalog/issues/97)) ([4834748](https://github.com/zackwag/iptv-catalog/commit/4834748eebd952ab97482dca717f2a8729944c57))
+* **deps:** bump react-router-dom from 7.18.3 to 7.18.4 in /frontend ([#68](https://github.com/zackwag/iptv-catalog/issues/68)) ([e7a4d24](https://github.com/zackwag/iptv-catalog/commit/e7a4d24b7fa56cba3c15856fd6aa21bd855eaebd))
+* **deps:** bump source-map-js from 1.2.1 to 1.2.2 in /frontend ([#95](https://github.com/zackwag/iptv-catalog/issues/95)) ([2d8720f](https://github.com/zackwag/iptv-catalog/commit/2d8720f071a6cbe45d60e680f4a08192d8b84a26))
+
 ## [1.4.0](https://github.com/zackwag/iptv-catalog/compare/v1.3.1...v1.4.0) (2026-09-22)
 
 
