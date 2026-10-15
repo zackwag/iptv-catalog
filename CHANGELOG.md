@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.4.2](https://github.com/zackwag/iptv-catalog/compare/v1.4.1...v1.4.2) (2026-10-15)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump @types/node from 26.6.4 to 26.6.5 ([#104](https://github.com/zackwag/iptv-catalog/issues/104)) ([89e3302](https://github.com/zackwag/iptv-catalog/commit/89e33020a0df6d30dd914f1e60317bff3406e56f))
+* **deps-dev:** bump @vitejs/plugin-react from 6.1.1 to 6.1.2 in /frontend ([#102](https://github.com/zackwag/iptv-catalog/issues/102)) ([ea88338](https://github.com/zackwag/iptv-catalog/commit/ea883388e1b06ded526264c3767cb3671ccabe0d))
+* **deps-dev:** bump prettier from 3.9.9 to 3.9.10 ([#108](https://github.com/zackwag/iptv-catalog/issues/108)) ([ff6a55d](https://github.com/zackwag/iptv-catalog/commit/ff6a55df93bebee08e1a0cdc22fa9639103f056f))
+* **deps-dev:** bump prettier from 3.9.9 to 3.9.10 in /frontend ([#101](https://github.com/zackwag/iptv-catalog/issues/101)) ([8ed8cfd](https://github.com/zackwag/iptv-catalog/commit/8ed8cfd4731c2aaedb3d61bc5a14aee34e86e19f))
+* **deps-dev:** bump typescript-eslint from 8.71.0 to 8.71.1 ([#100](https://github.com/zackwag/iptv-catalog/issues/100)) ([075ff59](https://github.com/zackwag/iptv-catalog/commit/075ff595d8a6c093584549ecaee14320030e3a42))
+* **deps-dev:** bump typescript-eslint from 8.71.0 to 8.71.1 in /frontend ([#107](https://github.com/zackwag/iptv-catalog/issues/107)) ([09cc25b](https://github.com/zackwag/iptv-catalog/commit/09cc25bdcc42399f26563736b3de37c8003e1464))
+* **deps-dev:** bump vite from 8.3.2 to 8.3.4 in /frontend ([#106](https://github.com/zackwag/iptv-catalog/issues/106)) ([3a67389](https://github.com/zackwag/iptv-catalog/commit/3a67389fb612b8b38bbf8e67de7157aafae2cdde))
+* **deps:** bump cronstrue from 3.27.0 to 3.31.0 in /frontend ([#103](https://github.com/zackwag/iptv-catalog/issues/103)) ([881b947](https://github.com/zackwag/iptv-catalog/commit/881b947503ef71389eb2be53bb8b910d99e4c04a))
+* **deps:** bump express from 5.2.1 to 5.3.0 ([#105](https://github.com/zackwag/iptv-catalog/issues/105)) ([99b30a6](https://github.com/zackwag/iptv-catalog/commit/99b30a6517c5b31a4b7e22d738265bb114e7b346))
+
 ## [1.4.1](https://github.com/zackwag/iptv-catalog/compare/v1.4.0...v1.4.1) (2026-10-10)
 
 
