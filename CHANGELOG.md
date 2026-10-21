@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.4.4](https://github.com/zackwag/iptv-catalog/compare/v1.4.3...v1.4.4) (2026-10-21)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump eslint from 10.12.0 to 10.13.0 ([#112](https://github.com/zackwag/iptv-catalog/issues/112)) ([c99ca62](https://github.com/zackwag/iptv-catalog/commit/c99ca629ab9d1323c64ec9d8aa5fa3c7018a8130))
+* **deps-dev:** bump eslint from 10.12.0 to 10.13.0 in /frontend ([#117](https://github.com/zackwag/iptv-catalog/issues/117)) ([4abdcb1](https://github.com/zackwag/iptv-catalog/commit/4abdcb1926fd25a60166416d0f6163cd3a497a27))
+* **deps-dev:** bump typescript-eslint from 8.71.1 to 8.71.2 ([#118](https://github.com/zackwag/iptv-catalog/issues/118)) ([f8d791a](https://github.com/zackwag/iptv-catalog/commit/f8d791abb3c178aaa3a44835f3f3aecd92c9f2fd))
+* **deps-dev:** bump typescript-eslint from 8.71.1 to 8.71.2 in /frontend ([#115](https://github.com/zackwag/iptv-catalog/issues/115)) ([3ba0b1c](https://github.com/zackwag/iptv-catalog/commit/3ba0b1c243c6d22c38f2177dfe5e1a10e7d72203))
+* **deps-dev:** bump vitest from 5.0.3 to 5.0.5 ([#114](https://github.com/zackwag/iptv-catalog/issues/114)) ([3fb4e0c](https://github.com/zackwag/iptv-catalog/commit/3fb4e0c3f40372cb5bd9271a6dcc50f1427be752))
+* **deps:** bump cronstrue from 3.31.0 to 3.32.0 in /frontend ([#116](https://github.com/zackwag/iptv-catalog/issues/116)) ([d0ae451](https://github.com/zackwag/iptv-catalog/commit/d0ae45135389db21b155b66f90cf541d79883f3e))
+* **deps:** bump the react group in /frontend with 2 updates ([#113](https://github.com/zackwag/iptv-catalog/issues/113)) ([a77a811](https://github.com/zackwag/iptv-catalog/commit/a77a811db6627c2cbc3017654c2692a1d3868aa3))
+
 ## [1.4.3](https://github.com/zackwag/iptv-catalog/compare/v1.4.2...v1.4.3) (2026-10-21)
 
 
