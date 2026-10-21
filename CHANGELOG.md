@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.3](https://github.com/zackwag/iptv-catalog/compare/v1.4.2...v1.4.3) (2026-10-21)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump vite from 8.3.2 to 8.3.5 ([#110](https://github.com/zackwag/iptv-catalog/issues/110)) ([7f4bf4b](https://github.com/zackwag/iptv-catalog/commit/7f4bf4b273d130569a1c624c088019382fb2badb))
+
 ## [1.4.2](https://github.com/zackwag/iptv-catalog/compare/v1.4.1...v1.4.2) (2026-10-15)
 
 
