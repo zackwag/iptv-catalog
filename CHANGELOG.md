@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.4.5](https://github.com/zackwag/iptv-catalog/compare/v1.4.4...v1.4.5) (2026-10-29)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump typescript-eslint from 8.71.2 to 8.72.0 ([#122](https://github.com/zackwag/iptv-catalog/issues/122)) ([ab5dbbe](https://github.com/zackwag/iptv-catalog/commit/ab5dbbe6fae2090f75ca8f210bf42480d24f9b38))
+* **deps-dev:** bump typescript-eslint from 8.71.2 to 8.72.1 in /frontend ([#121](https://github.com/zackwag/iptv-catalog/issues/121)) ([19cd75d](https://github.com/zackwag/iptv-catalog/commit/19cd75d5f4819651f4dfc392209de4f67aa0f748))
+* **deps-dev:** bump typescript-eslint in /frontend ([19cd75d](https://github.com/zackwag/iptv-catalog/commit/19cd75d5f4819651f4dfc392209de4f67aa0f748))
+* **deps-dev:** bump vite from 8.3.4 to 8.3.5 in /frontend ([#123](https://github.com/zackwag/iptv-catalog/issues/123)) ([3485324](https://github.com/zackwag/iptv-catalog/commit/3485324d10d48f37c279daa2cafaaa96766f246f))
+* **deps:** bump body-parser from 2.3.0 to 2.4.0 ([#127](https://github.com/zackwag/iptv-catalog/issues/127)) ([c220080](https://github.com/zackwag/iptv-catalog/commit/c22008074f0853f42b7ad7f17b4e8ec861a6f944))
+* **deps:** bump cronstrue from 3.32.0 to 3.38.0 in /frontend ([#120](https://github.com/zackwag/iptv-catalog/issues/120)) ([e2f162a](https://github.com/zackwag/iptv-catalog/commit/e2f162a47a51fffbd89d9cbfdcc58864f1395203))
+* **deps:** bump ip-address from 10.7.2 to 10.7.5 ([#125](https://github.com/zackwag/iptv-catalog/issues/125)) ([cc0bd48](https://github.com/zackwag/iptv-catalog/commit/cc0bd48529a5df06f4d4b2e8b6c75db105a9b16b))
+* **deps:** bump qs from 6.16.0 to 6.17.1 ([#126](https://github.com/zackwag/iptv-catalog/issues/126)) ([f0613a2](https://github.com/zackwag/iptv-catalog/commit/f0613a288a709265a39f071c794b99b780781d1d))
+
 ## [1.4.4](https://github.com/zackwag/iptv-catalog/compare/v1.4.3...v1.4.4) (2026-10-21)
 
 
