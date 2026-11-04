@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.6](https://github.com/zackwag/iptv-catalog/compare/v1.4.5...v1.4.6) (2026-11-04)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump @types/node from 26.6.5 to 26.6.6 ([#133](https://github.com/zackwag/iptv-catalog/issues/133)) ([4f83b1e](https://github.com/zackwag/iptv-catalog/commit/4f83b1e8d978521b103153e3b54bde6006631865))
+* **deps-dev:** bump eslint from 10.13.0 to 10.14.0 ([#128](https://github.com/zackwag/iptv-catalog/issues/128)) ([85bf81b](https://github.com/zackwag/iptv-catalog/commit/85bf81b097c62f9b66c16f28248a6acd76402c22))
+* **deps-dev:** bump eslint from 10.13.0 to 10.14.0 in /frontend ([#129](https://github.com/zackwag/iptv-catalog/issues/129)) ([83ab174](https://github.com/zackwag/iptv-catalog/commit/83ab1749c1ad0d7b14c891abc4e442ae7d1a74b2))
+* **deps-dev:** bump typescript-eslint from 8.72.0 to 8.72.1 ([#130](https://github.com/zackwag/iptv-catalog/issues/130)) ([aeca2a0](https://github.com/zackwag/iptv-catalog/commit/aeca2a0d8290035e35a2943e0cfd14851c1d0fa0))
+* **deps:** bump hls.js from 1.7.3 to 1.7.4 in /frontend ([#132](https://github.com/zackwag/iptv-catalog/issues/132)) ([b3cab03](https://github.com/zackwag/iptv-catalog/commit/b3cab0345a2b8e6a6a6013b1a60419d5b9006b39))
+* **deps:** bump react-router-dom from 7.18.4 to 7.18.5 in /frontend ([#131](https://github.com/zackwag/iptv-catalog/issues/131)) ([1a83052](https://github.com/zackwag/iptv-catalog/commit/1a8305249cac2adaeebcccd82e757dbac1487319))
+
 ## [1.4.5](https://github.com/zackwag/iptv-catalog/compare/v1.4.4...v1.4.5) (2026-10-29)
 
 
