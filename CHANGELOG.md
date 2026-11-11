@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.7](https://github.com/zackwag/iptv-catalog/compare/v1.4.6...v1.4.7) (2026-11-11)
+
+
+### Miscellaneous Chores
+
+* fix dependabot commit-message prefixes for conventional commits ([#135](https://github.com/zackwag/iptv-catalog/issues/135)) ([f8eaa3d](https://github.com/zackwag/iptv-catalog/commit/f8eaa3d8a6e2a13873205de8613b9cbf12835cb1))
+
 ## [1.4.6](https://github.com/zackwag/iptv-catalog/compare/v1.4.5...v1.4.6) (2026-11-04)
 
 
