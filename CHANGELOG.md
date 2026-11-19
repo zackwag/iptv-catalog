@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.8](https://github.com/zackwag/iptv-catalog/compare/v1.4.7...v1.4.8) (2026-11-19)
+
+
+### Miscellaneous Chores
+
+* **deps:** bump better-sqlite3 from 13.0.3 to 13.2.0 ([#150](https://github.com/zackwag/iptv-catalog/issues/150)) ([bcf69c2](https://github.com/zackwag/iptv-catalog/commit/bcf69c230ff074d094be7e1eb587ec8d6d88c938))
+
 ## [1.4.7](https://github.com/zackwag/iptv-catalog/compare/v1.4.6...v1.4.7) (2026-11-11)
 
 
