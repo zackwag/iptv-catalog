@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.9](https://github.com/zackwag/iptv-catalog/compare/v1.4.8...v1.4.9) (2026-11-27)
+
+
+### Miscellaneous Chores
+
+* **deps:** bump cronstrue from 3.38.0 to 3.43.0 in /frontend ([#154](https://github.com/zackwag/iptv-catalog/issues/154)) ([379bd2c](https://github.com/zackwag/iptv-catalog/commit/379bd2c4abe2e54209582b36905f1945d390b336))
+* **deps:** bump react-router-dom from 7.18.5 to 7.18.6 in /frontend ([#155](https://github.com/zackwag/iptv-catalog/issues/155)) ([e646cf3](https://github.com/zackwag/iptv-catalog/commit/e646cf3d1bd098c2f9a7ed7d44e954e2afe075df))
+
 ## [1.4.8](https://github.com/zackwag/iptv-catalog/compare/v1.4.7...v1.4.8) (2026-11-19)
 
 
